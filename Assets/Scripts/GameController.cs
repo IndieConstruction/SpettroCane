@@ -15,6 +15,8 @@ public class GameController : MonoBehaviour
 
     public static GameController Instance;
 
+    public bool canManualControl = true;
+
     private void Awake() {
         if (Instance == null)
             Instance = this;
@@ -22,8 +24,9 @@ public class GameController : MonoBehaviour
     
 	void Update ()
     {
-		if (Input.GetKeyDown(KeyCode.Space))
+		if (Input.GetKeyDown(KeyCode.Space) && canManualControl)
         {
+            canManualControl = false;
             targetWave.SumWave(gameWave);
 
             if (targetWave.IsWaveZero())

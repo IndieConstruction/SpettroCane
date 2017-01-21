@@ -132,6 +132,7 @@ public class Wave : MonoBehaviour
     void EnableMovement()
     {
         manualMove = true;
+        GameController.Instance.canManualControl = true;
     }
 
     public void ShiftWave(int step) {
@@ -186,8 +187,7 @@ public class Wave : MonoBehaviour
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
             if (windowHeights[i] == 0) continue;
-
-            Debug.Log("AA " + i);
+            
             var bar = bars[i];
             Tweener tweener = bar.transform.DOMoveY(toWave.transform.position.y +
                 + windowHeights[i] / 2f 
@@ -217,27 +217,33 @@ public class Wave : MonoBehaviour
             var bar = bars[i];
             var data_i = i + windowOffset;
             if (data_i >= allHeights.Count) data_i -= allHeights.Count;
-            SoftDestroyBar(bar,data_i);
+            SoftDestroyBar(bar, i, data_i, lastone: i == PlayWindowEnd-1);
         }
 
         // Make sure the other gets updated now
         toWave.UpdateSum(this);
 
-        // Re-enable movement
-        EnableMovement();
     }
 
-    void SoftDestroyBar(Bar _barToDestroy, int index) {
+    void SoftDestroyBar(Bar _barToDestroy, int windowIndex, int dataIndex, bool lastone = false) {
         float effectDuration = 0.2f;
         _barToDestroy.barSprite.DOFade(0, effectDuration).OnComplete(() => {
             var tmp = _barToDestroy.transform.localPosition;
             tmp.y = 0;
             _barToDestroy.transform.localPosition = tmp;
 
-            Debug.Log("SET TO ZERO " + index);
-            allHeights[index] = 0;
+            //Debug.Log("SET TO ZERO " + windowIndex);
+            windowHeights[windowIndex] = 0;
+            allHeights[dataIndex] = 0;
+
+            if (lastone)
+            {
+                // Re-enable movement
+                EnableMovement();
+            }
         });
         _barToDestroy.transform.DOScaleY(0, effectDuration);
+        _barToDestroy.transform.DOMoveY(-windowHeights[windowIndex]/2, effectDuration);
     }
 
 
