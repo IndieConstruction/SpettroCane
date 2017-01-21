@@ -5,11 +5,12 @@ using UnityEngine;
 public class Wave : MonoBehaviour
 {
     private List<int> heights = new List<int>();
-    private float period = 1f;
     private List<Bar> bars = new List<Bar>();
     public GameObject barPrefab;
 
     public int nValues = 10;
+
+    public float period = 0;
 
     private float barSize = 1f;
 
@@ -26,21 +27,19 @@ public class Wave : MonoBehaviour
             Debug.Log(values[i]);
         }
 
-        CreateWave(values, 0f);
+        CreateWave(values);
 
         StartCoroutine(MoveWaveCO());
     }
 
     int MyCos(float value)
     {
-        return (value > 2 && value < 7) ? 10 : 0;
+        return (value > 5 && value < 9) ? -10 : ((value > 2 && value < 7) ? 10 : 0);
        // return (int)(10 * Mathf.Cos(value));
     } 
 
-    void CreateWave(int[] _heights, float period)
+    void CreateWave(int[] _heights)
     {
-        this.period = period;
-
         heights.Clear();
         heights.AddRange(_heights);
 
@@ -67,7 +66,7 @@ public class Wave : MonoBehaviour
                 List<int> newHeights = new List<int>();
                 for (int i = 0; i < heights.Count; i++)
                 {
-                    var j = i;// + 1;
+                    var j = i + 1;
                     if (j >= heights.Count) j = 0;
                     newHeights.Add(heights[j]);
                 }
@@ -82,7 +81,17 @@ public class Wave : MonoBehaviour
                     size.y = heights[i];
                     bars[i].transform.localScale = size;
                     bars[i].transform.localPosition = pos;
+
+                    if (heights[i] < 0)
+                    {
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+                    } else
+                    {
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+                    }
                 }
+
+                if (period == 0) yield break;
             }
             yield return null;
         }
