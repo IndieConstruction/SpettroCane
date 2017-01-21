@@ -13,9 +13,12 @@ public class Wave : MonoBehaviour
     public bool testCosine = false;
 
     public bool autoMove = true;
+    public float autoPeriod = 0;
 
-    public int windowSize = 10;
+    // What the player can drop down (active size)
     public int windowStep = 1;
+    public int lookWindowSize = 20;
+    public int playWindowSize = 10;
 
     private List<int> allHeights = new List<int>();         // all heights, as updated, read from the data initially
     private List<int> windowHeights = new List<int>();      // current heights shown in the window
@@ -27,21 +30,17 @@ public class Wave : MonoBehaviour
     // Bar
     private List<Bar> bars = new List<Bar>();
     public GameObject barPrefab;
-    private float barSize = 1f;
-
-    public float period = 0;
-
+    private float barPlayWidth = 2f;
+    //private float barActualWidth = 1.8f;
 
     public int maxHeight = 4;
 
     //private System.Func<float,int> WaveDelegate;
 
-
-    //public int lookWindowSize = 20;
-    // private int lookWindowOffset = 0;
-
-
     public int HeightsNum { get { return allHeights.Count; } }
+
+    private int PlayWindowStart { get { return windowOffset + (lookWindowSize / 2 - playWindowSize / 2); } }
+    private int PlayWindowEnd { get { return windowOffset + (lookWindowSize / 2 + playWindowSize / 2); } }
 
     #region Wave data
     public void CreateFromWaveData(WaveData waveData)
@@ -95,11 +94,11 @@ public class Wave : MonoBehaviour
         allHeights.AddRange(_heights);
 
         // Instantiate
-        for (int i = 0; i < windowSize; i++)
+        for (int i = 0; i < lookWindowSize; i++)
         {
             GameObject go = Instantiate(barPrefab);
             go.transform.SetParent(transform);
-            go.transform.localPosition = Vector3.right * i * barSize;
+            go.transform.localPosition = Vector3.right * i * barPlayWidth;
             bars.Add(go.GetComponent<Bar>());
         }
     }
@@ -112,9 +111,9 @@ public class Wave : MonoBehaviour
             if (autoMove)
             {
                 t += Time.deltaTime;
-                if (t >= period)
+                if (t >= autoPeriod)
                 {
-                    t -= period;
+                    t -= autoPeriod;
                     ShiftWave(windowStep);
                 }
             }
@@ -151,7 +150,7 @@ public class Wave : MonoBehaviour
     void UpdateSum(Wave other)
     {
         // We sum the current wave here
-        for (int i = 0; i < other.windowSize; i++)
+        for (int i = other.PlayWindowStart; i < other.PlayWindowEnd; i++)
         {
             allHeights[i] += other.windowHeights[i];
             //Debug.Log("all: " +  this.allHeights[i] + " wind: " + other.windowHeights[i]);
@@ -175,13 +174,14 @@ public class Wave : MonoBehaviour
     {
         this.toWave = toWave;
         StopMovement();
-        for (int i = 0; i < windowSize; i++)
+        for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
             var bar = bars[i];
             var tweener = bar.transform.DOMoveY(toWave.transform.position.y +
-                + windowHeights[i]/ 2f + toWave.allHeights[i] * 1f, fallPeriod).SetEase(fallEase);
-            if (i == windowSize - 1)
-            tweener.OnComplete(EndSum);
+                + windowHeights[i] / 2f 
+                + toWave.allHeights[i] * 1f, fallPeriod).SetEase(fallEase);
+            if (i == playWindowSize - 1)
+                tweener.OnComplete(EndSum);
             yield return new WaitForSeconds(fallDelay);
         }
     }
@@ -195,14 +195,14 @@ public class Wave : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         // Destroy this bars
-        for (int i = 0; i < windowSize; i++)
+        for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
             var bar = bars[i];
             Destroy(bar.gameObject);
         }
 
         // Make sure the other gets updated now
-        this.toWave.UpdateSum(this);
+        toWave.UpdateSum(this);
     }
 
 
@@ -215,17 +215,17 @@ public class Wave : MonoBehaviour
     {
         // Update the window
         windowHeights.Clear();
-        for (int i = 0; i < windowSize; i++)
+        for (int i = 0; i < lookWindowSize; i++)
         {
             var j = windowOffset + i;
             if (j >= allHeights.Count) j -= allHeights.Count;
             if (j < 0) j += allHeights.Count;
-            Debug.Log("i " + i + ": j " + j);
+            //Debug.Log("i " + i + ": j " + j);
             windowHeights.Add(allHeights[j]);
         }
 
         // Draw it
-        for (int i = 0; i < windowSize; i++)
+        for (int i = 0; i < lookWindowSize; i++)
         {
             //Debug.Log("DRAW " + this.name);
             var pos = bars[i].transform.localPosition;
@@ -235,7 +235,16 @@ public class Wave : MonoBehaviour
             if (windowHeights[i] < 0)
             {
                 if (withColors)
-                    bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+                {
+                    if (i >= PlayWindowStart && i < PlayWindowEnd)
+                    {
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+                    }
+                    else
+                    {
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red * 0.5f;
+                    }
+                }
 
                 if (colorsOnly)
                     pos.y = -allHeights[i] / 2f;
@@ -243,7 +252,16 @@ public class Wave : MonoBehaviour
             else
             {
                 if (withColors)
-                    bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+                {
+                    if (i >= PlayWindowStart && i < PlayWindowEnd)
+                    {
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+                    }
+                    else
+                    {
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green * 0.5f;
+                    }
+                }
             }
 
             size.y = windowHeights[i];
