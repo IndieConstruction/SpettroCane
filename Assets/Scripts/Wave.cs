@@ -106,6 +106,8 @@ public class Wave : MonoBehaviour
 
         //Debug.Log(windowOffset);
 
+        Debug.Log("Shift wave called: " + windowOffset);
+
         Draw();
     }
 
