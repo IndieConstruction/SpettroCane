@@ -7,15 +7,69 @@ public class LevelController : MonoBehaviour
     public WaveDataPack[] levelPacks;
     public List<Target> TargetList;
     public List<Piece> Pieces;
+    private int currentLevel = 0;
 
     private void Start()
     {
+        GameController.OnWin += OnWin;
+
         SetLevel(0);
         LoadLevelsFile();
     }
-    
-	void SetLevel(int levelId)
+
+    bool levelWon = false;
+    void OnWin()
     {
+        levelWon = true;
+        levelLost = false;
+    }
+
+    bool levelLost = false;
+    void OnLose()
+    {
+        levelLost = true;
+    }
+
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) SetLevel(1);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) SetLevel(2);
+        if (Input.GetKeyDown(KeyCode.Alpha3)) SetLevel(3);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) SetLevel(4);
+        if (Input.GetKeyDown(KeyCode.Alpha5)) SetLevel(5);
+        if (Input.GetKeyDown(KeyCode.Alpha6)) SetLevel(6);
+
+        if (levelWon)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                AdvanceLevel();
+            }
+        }
+        if (levelLost)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                RetryLevel();
+            }
+        }
+
+    }
+
+    public void AdvanceLevel()
+    {
+        SetLevel(currentLevel + 1);
+    }
+
+    public void RetryLevel()
+    {
+        SetLevel(currentLevel);
+    }
+
+
+    void SetLevel(int levelId)
+    {
+        this.currentLevel = levelId;
         GameController.Instance.gameWave.CreateFromWaveDatas(levelPacks[levelId].inputs);
         GameController.Instance.targetWave.CreateFromWaveData(levelPacks[levelId].target);
 
