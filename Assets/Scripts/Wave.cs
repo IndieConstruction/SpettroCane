@@ -4,8 +4,7 @@ using UnityEngine;
 using System.Linq;
 using DG.Tweening;
 
-public class Wave : MonoBehaviour
-{
+public class Wave : MonoBehaviour {
     // OPTIONS
     private bool withColors = true;
     private bool colorsOnly = false;
@@ -39,12 +38,11 @@ public class Wave : MonoBehaviour
 
     public int HeightsNum { get { return allHeights.Count; } }
 
-    private int PlayWindowStart { get { return windowOffset + (lookWindowSize / 2 - playWindowSize / 2); } }
-    private int PlayWindowEnd { get { return windowOffset + (lookWindowSize / 2 + playWindowSize / 2); } }
+    private int PlayWindowStart { get { return (lookWindowSize / 2 - playWindowSize / 2); } }
+    private int PlayWindowEnd { get { return (lookWindowSize / 2 + playWindowSize / 2); } }
 
     #region Wave data
-    public void CreateFromWaveData(WaveData waveData)
-    {
+    public void CreateFromWaveData(WaveData waveData) {
         List<int> values = new List<int>();
         values.AddRange(waveData.values);
 
@@ -52,8 +50,7 @@ public class Wave : MonoBehaviour
         Draw();
     }
 
-    public void CreateFromWaveDatas(WaveData[] waveDatas)
-    {
+    public void CreateFromWaveDatas(WaveData[] waveDatas) {
         List<int> values = new List<int>();
         for (int i = 0; i < waveDatas.Length; i++)
             values.AddRange(waveDatas[i].values);
@@ -62,8 +59,7 @@ public class Wave : MonoBehaviour
         Draw();
     }
 
-    public void CreateWithTestData()
-    {
+    public void CreateWithTestData() {
         int nValues = 100;
         List<int> values = new List<int>();
         for (int i = 0; i < nValues; i++)
@@ -74,13 +70,11 @@ public class Wave : MonoBehaviour
     }
     #endregion
 
-    public void Awake()
-    {
+    public void Awake() {
         // Init
         windowOffset = 0;
 
-        if (testCosine)
-        {
+        if (testCosine) {
             CreateWithTestData();
         }
 
@@ -88,8 +82,7 @@ public class Wave : MonoBehaviour
             StartCoroutine(MoveWaveCO());
     }
 
-    void CreateWave(List<int> _heights)
-    {
+    void CreateWave(List<int> _heights) {
         allHeights.Clear();
         allHeights.AddRange(_heights);
 
@@ -103,13 +96,10 @@ public class Wave : MonoBehaviour
         }
     }
 
-    IEnumerator MoveWaveCO()
-    {
+    IEnumerator MoveWaveCO() {
         float t = 0;
-        while (true)
-        {
-            if (autoMove)
-            {
+        while (true) {
+            if (autoMove) {
                 t += Time.deltaTime;
                 if (t >= autoPeriod)
                 {
@@ -121,13 +111,11 @@ public class Wave : MonoBehaviour
         }
     }
 
-    void StopMovement()
-    {
+    void StopMovement() {
         autoMove = false;
     }
 
-    public void ShiftWave(int step)
-    {
+    public void ShiftWave(int step) {
         // Shift the wave
         windowOffset += step;
         if (windowOffset >= allHeights.Count)
@@ -140,15 +128,13 @@ public class Wave : MonoBehaviour
         Draw();
     }
 
-    public void SumWave(Wave other)
-    {
+    public void SumWave(Wave other) {
         // Summing from OTHER to THIS
         //Debug.Log("SUMMING OTHER " + other.windowOffset);
         other.StartCoroutine(other.AnimateFallCO(this));
     }
 
-    void UpdateSum(Wave other)
-    {
+    void UpdateSum(Wave other) {
         // We sum the current wave here
         for (int i = other.PlayWindowStart; i < other.PlayWindowEnd; i++)
         {
@@ -170,8 +156,7 @@ public class Wave : MonoBehaviour
     public float fallDelay = 0.05f;
     public Ease fallEase;
     Wave toWave;
-    public IEnumerator AnimateFallCO(Wave toWave)
-    {
+    public IEnumerator AnimateFallCO(Wave toWave) {
         this.toWave = toWave;
         StopMovement();
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
@@ -186,23 +171,35 @@ public class Wave : MonoBehaviour
         }
     }
 
-    void EndSum()
-    {
+    void EndSum() {
         StartCoroutine(EndSumCO());
     }
-    IEnumerator EndSumCO()
-    {
+
+    IEnumerator EndSumCO() {
         yield return new WaitForSeconds(0.5f);
 
         // Destroy this bars
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
             var bar = bars[i];
-            Destroy(bar.gameObject);
+            SoftDestroyBar(bar,i);
         }
 
         // Make sure the other gets updated now
         toWave.UpdateSum(this);
+    }
+
+    void SoftDestroyBar(Bar _barToDestroy, int index) {
+        float effectDuration = 0.2f;
+        _barToDestroy.barSprite.DOFade(0, effectDuration).OnComplete(() => {
+            var tmp = _barToDestroy.transform.localPosition;
+            tmp.y = 0;
+            _barToDestroy.transform.localPosition = tmp;
+
+            Debug.Log("SET TO ZERO " + index);
+            allHeights[index] = 0;
+        });
+        _barToDestroy.transform.DOScaleY(0, effectDuration);
     }
 
 
@@ -239,10 +236,12 @@ public class Wave : MonoBehaviour
                     if (i >= PlayWindowStart && i < PlayWindowEnd)
                     {
                         bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+                        bars[i].name = "PLAY";
                     }
                     else
                     {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red * 0.5f;
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0.4f, 0, 0, 1);
+                        bars[i].name = "look";
                     }
                 }
 
@@ -256,10 +255,12 @@ public class Wave : MonoBehaviour
                     if (i >= PlayWindowStart && i < PlayWindowEnd)
                     {
                         bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+                        bars[i].name = "PLAY";
                     }
                     else
                     {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green * 0.5f;
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0, 0.4f, 0, 1);
+                        bars[i].name = "look";
                     }
                 }
             }
