@@ -12,9 +12,7 @@ public class Wave : MonoBehaviour
 
     public bool testCosine = false;
 
-    public bool canMove = true;
-
-    public WaveData wData;
+    public bool autoMove = true;
 
     public int windowSize = 10;
     public int windowStep = 1;
@@ -34,57 +32,57 @@ public class Wave : MonoBehaviour
 
     public int maxHeight = 4;
 
-    private System.Func<float,int> WaveDelegate;
+    //private System.Func<float,int> WaveDelegate;
+
+     public int HeightsNum { get { return allHeights.Count; } }
+
+    #region Wave data
+    public void CreateFromWaveData(WaveData waveData)
+    {
+        List<int> values = new List<int>();
+        values.AddRange(waveData.values);
+
+        CreateWave(values);
+        Draw();
+    }
+
+    public void CreateFromWaveDatas(WaveData[] waveDatas)
+    {
+        List<int> values = new List<int>();
+        for (int i = 0; i < waveDatas.Length; i++)
+            values.AddRange(waveDatas[i].values);
+
+        CreateWave(values);
+        Draw();
+    }
+
+    public void CreateWithTestData()
+    {
+        int nValues = 100;
+        List<int> values = new List<int>();
+        for (int i = 0; i < nValues; i++)
+            values[i] = (int)(maxHeight * Mathf.Cos(i * 0.1f));
+
+        CreateWave(values);
+        Draw();
+    }
+    #endregion
 
     public void Awake()
     {
         // Init
         windowOffset = 0;
 
-        WaveDelegate += MyData;
-
-        int nValues;
-        int[] values;
-
-        if (!testCosine)
+        if (testCosine)
         {
-            nValues = wData.values.Length;
-            values = new int[nValues];
-            for (int i = 0; i < nValues; i++)
-            {
-                values[i] = WaveDelegate(i);
-            }
-        }
-        else
-        {
-            nValues = 100;
-            values = new int[nValues];
-            for (int i = 0; i < nValues; i++)
-            {
-                values[i] = MyCos(i*0.1f);
-            }
+            CreateWithTestData();
         }
 
-        CreateWave(values);
-
-        Draw();
-
-        if (canMove)
+        if (autoMove)
             StartCoroutine(MoveWaveCO());
     }
 
-    int MyData(float value)
-    {
-        return wData.values[(int)value];
-    }
-
-    int MyCos(float value)
-    {
-       // return (value > 5 && value < 9) ? -maxHeight : ((value > 2 && value < 7) ? maxHeight : 0);
-        return (int)(maxHeight * Mathf.Cos(value));
-    } 
-
-    void CreateWave(int[] _heights)
+    void CreateWave(List<int> _heights)
     {
         allHeights.Clear();
         allHeights.AddRange(_heights);
@@ -104,7 +102,7 @@ public class Wave : MonoBehaviour
         float t = 0;
         while (true)
         {
-            if (canMove)
+            if (autoMove)
             {
                 t += Time.deltaTime;
                 if (t >= period)
@@ -119,7 +117,7 @@ public class Wave : MonoBehaviour
 
     void StopMovement()
     {
-        canMove = false;
+        autoMove = false;
     }
 
     public void ShiftWave(int step)
