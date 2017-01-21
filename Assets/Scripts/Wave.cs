@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 public class Wave : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class Wave : MonoBehaviour
     public int nValues = 10;
 
     public float period = 0;
+
+    public int steps = 10;
 
     private float barSize = 1f;
     public int maxHeight = 10;
@@ -67,30 +70,18 @@ public class Wave : MonoBehaviour
                 List<int> newHeights = new List<int>();
                 for (int i = 0; i < heights.Count; i++)
                 {
-                    var j = i + 1;
+                    var j = i + steps;
                     if (j >= heights.Count) j = 0;
                     newHeights.Add(heights[j]);
                 }
 
-                // Show the wave
+                // Update the weight
                 for (int i = 0; i < heights.Count; i++)
                 {
                     heights[i] = newHeights[i];
-                    var pos = bars[i].transform.localPosition;
-                    var size = bars[i].transform.localScale;
-                    pos.y = heights[i] / 2f;
-                    size.y = heights[i];
-                    bars[i].transform.localScale = size;
-                    bars[i].transform.localPosition = pos;
-
-                    if (heights[i] < 0)
-                    {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
-                    } else
-                    {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
-                    }
                 }
+
+                Draw();
 
                 if (period == 0) yield break;
             }
@@ -98,8 +89,41 @@ public class Wave : MonoBehaviour
         }
     }
 
-    void WaveSum()
+    public void SumWave(Wave other)
     {
+        for (int i = 0; i < heights.Count; i++)
+        {
+            heights[i] += other.heights[i];
+        }
+
+        Draw();
+    }
+
+    public bool IsWaveZero()
+    {
+        return heights.Sum() == 0;
+    }
+
+    void Draw()
+    {
+        for (int i = 0; i < heights.Count; i++)
+        {
+            var pos = bars[i].transform.localPosition;
+            var size = bars[i].transform.localScale;
+            pos.y = heights[i] / 2f;
+            size.y = heights[i];
+            bars[i].transform.localScale = size;
+            bars[i].transform.localPosition = pos;
+
+            if (heights[i] < 0)
+            {
+                bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+            }
+            else
+            {
+                bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+            }
+        }
 
     }
 }
