@@ -132,14 +132,14 @@ public class Wave : MonoBehaviour
             windowOffset = allHeights.Count - 1;
 
         //Debug.Log(windowOffset);
-        Debug.Log("Shift wave called: " + windowOffset);
+        //Debug.Log("Shift wave called: " + windowOffset);
         Draw();
     }
 
     public void SumWave(Wave other)
     {
         // Summing from OTHER to THIS
-        Debug.Log("SUMMING OTHER " + other.windowOffset);
+        //Debug.Log("SUMMING OTHER " + other.windowOffset);
         other.StartCoroutine(other.AnimateFallCO(this));
     }
 
@@ -162,8 +162,9 @@ public class Wave : MonoBehaviour
 
 
     // Animate falling over toWave
-    private float fallPeriod = 0.2f;
-    private float fallDelay = 0.05f;
+    public float fallPeriod = 0.2f;
+    public float fallDelay = 0.05f;
+    public Ease fallEase;
     Wave toWave;
     public IEnumerator AnimateFallCO(Wave toWave)
     {
@@ -173,7 +174,7 @@ public class Wave : MonoBehaviour
         {
             var bar = bars[i];
             var tweener = bar.transform.DOMoveY(toWave.transform.position.y +
-                + windowHeights[i]/ 2f + toWave.allHeights[i] * 1.5f, fallPeriod);
+                + windowHeights[i]/ 2f + toWave.allHeights[i] * 1f, fallPeriod).SetEase(fallEase);
             if (i == windowSize - 1)
             tweener.OnComplete(EndSum);
             yield return new WaitForSeconds(fallDelay);
@@ -182,6 +183,12 @@ public class Wave : MonoBehaviour
 
     void EndSum()
     {
+        StartCoroutine(EndSumCO());
+    }
+    IEnumerator EndSumCO()
+    {
+        yield return new WaitForSeconds(0.5f);
+
         // Destroy this bars
         for (int i = 0; i < windowSize; i++)
         {
