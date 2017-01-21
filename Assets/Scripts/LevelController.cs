@@ -5,14 +5,31 @@ using UnityEngine;
 public class LevelController : MonoBehaviour
 {
     public WaveDataPack[] levelPacks;
+    private int currentLevel = 0;
 
     private void Start()
     {
         SetLevel(0);
     }
+
+    public void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Alpha1)) SetLevel(1);
+        if (Input.GetKeyDown(KeyCode.Alpha2)) SetLevel(2)
+        if (Input.GetKeyDown(KeyCode.Alpha3)) SetLevel(3);
+        if (Input.GetKeyDown(KeyCode.Alpha4)) SetLevel(4);
+        if (Input.GetKeyDown(KeyCode.Alpha5)) SetLevel(5);
+        if (Input.GetKeyDown(KeyCode.Alpha6)) SetLevel(6);
+    }
+
+    public void AdvanceLevel()
+    {
+        SetLevel(currentLevel + 1);
+    }
     
 	void SetLevel(int levelId)
     {
+        this.currentLevel++;
         GameController.Instance.gameWave.CreateFromWaveDatas(levelPacks[levelId].inputs);
         GameController.Instance.targetWave.CreateFromWaveData(levelPacks[levelId].target);
 

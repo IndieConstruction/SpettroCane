@@ -6,6 +6,7 @@ using DG.Tweening;
 
 public class Wave : MonoBehaviour
 {
+    public bool IsTargetWave = false;
 
     // OPTIONS
     private bool withColors = true;
@@ -173,6 +174,8 @@ public class Wave : MonoBehaviour
         }
 
         Draw();
+
+
     }
 
     // Animate falling over toWave
@@ -259,30 +262,11 @@ public class Wave : MonoBehaviour
             });
         }
 
-        //_barToDestroy.transform.DOScaleY(1, effectDuration).OnComplete(() => {
-
-            /* var tmp = _barToDestroy.transform.localPosition;
-             tmp.y = 0;
-             _barToDestroy.transform.localPosition = tmp;
-
-             //Debug.Log("SET TO ZERO " + windowIndex);
-             windowHeights[windowIndex] = 0;
-             allHeights[dataIndex] = 0;
-             //  var col = cube.GetComponent<MeshRenderer>().material.color;
-             //  col.a = 1;
-             //  cube.GetComponent<MeshRenderer>().material.color = col;
-             if (lastone)
-             {
-                 // Re-enable movement
-                 EnableMovement();
-             }
-             */
-            // });
-
-            //_barToDestroy.transform.DOMoveY(windowHeights[windowIndex]/2f, effectDuration).SetRelative(true);
+        if (!IsTargetWave) {
+            if(!GameController.Instance.CheckWin(toWave.allHeights))
+                GameController.Instance.CheckLose(allHeights);
+        }
     }
-
-
 
     public bool IsWaveZero()
     {
