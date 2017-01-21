@@ -6,6 +6,7 @@ using DG.Tweening;
 
 public class Wave : MonoBehaviour
 {
+    public bool IsTargetWave = false;
 
     // OPTIONS
     private bool withColors = true;
@@ -167,6 +168,8 @@ public class Wave : MonoBehaviour
         }
 
         Draw();
+
+
     }
 
     /*public IEnumerator EndSumCO(Wave other)
@@ -240,12 +243,17 @@ public class Wave : MonoBehaviour
             {
                 // Re-enable movement
                 EnableMovement();
+
+                if (!IsTargetWave) {
+                    if(!GameController.Instance.CheckWin(toWave.allHeights))
+                        GameController.Instance.CheckLose(allHeights);
+                }
+
             }
         });
         _barToDestroy.transform.DOScaleY(0, effectDuration);
         _barToDestroy.transform.DOMoveY(-windowHeights[windowIndex]/2, effectDuration);
     }
-
 
     public bool IsWaveZero()
     {

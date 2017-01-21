@@ -44,4 +44,41 @@ public class GameController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Checks the lose.
+    /// </summary>
+    public void CheckLose(List<int> _elements) {
+        // Lose
+        if (_elements.FindIndex(b => b != 0) == -1) {
+            if (OnLose != null) {
+                OnLose();
+            }
+            Debug.Log("Lose");
+        }
+    }
+
+    /// <summary>
+    /// Checks the win.
+    /// </summary>
+    public bool CheckWin(List<int> _elements) {
+        // Lose
+        if (_elements.FindIndex(b => b != 0) == -1) {
+            if (OnWin != null) {
+                OnWin();
+            }
+            Debug.Log("Win");
+            return true;
+        }
+        return false;
+    }
+
+    #region Events
+
+    public delegate void GameFlowEvent();
+
+    public static event GameFlowEvent OnWin;
+    public static event GameFlowEvent OnLose;
+
+    #endregion
+
 }
