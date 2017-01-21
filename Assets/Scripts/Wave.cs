@@ -5,6 +5,8 @@ using System.Linq;
 
 public class Wave : MonoBehaviour
 {
+    public WaveData wData;
+
     private List<int> heights = new List<int>();
     private List<Bar> bars = new List<Bar>();
     public GameObject barPrefab;
@@ -16,13 +18,14 @@ public class Wave : MonoBehaviour
     public int steps = 10;
 
     private float barSize = 1f;
-    public int maxHeight = 10;
+
+    public int maxHeight = 4;
 
     private System.Func<float,int> WaveDelegate;
 
     public void Awake()
     {
-        WaveDelegate += MyCos;
+        WaveDelegate += MyData;
 
         int[] values = new int[nValues];
         for (int i = 0; i < nValues; i++)
@@ -34,6 +37,11 @@ public class Wave : MonoBehaviour
         CreateWave(values);
 
         StartCoroutine(MoveWaveCO());
+    }
+
+    int MyData(float value)
+    {
+        return wData.values[(int)value];
     }
 
     int MyCos(float value)
