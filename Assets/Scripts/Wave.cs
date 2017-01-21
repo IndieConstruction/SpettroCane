@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using DG.Tweening;
 
 public class Wave : MonoBehaviour
 {
@@ -78,7 +79,7 @@ public class Wave : MonoBehaviour
         while (true)
         {
             t += Time.deltaTime;
-            if (t >= period)
+            if (t >= period && canMove)
             {
                 t -= period;
 
@@ -88,6 +89,12 @@ public class Wave : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    private bool canMove = true;
+    void StopMovement()
+    {
+        canMove = false;
     }
 
     public void ShiftWave(int step)
@@ -101,6 +108,76 @@ public class Wave : MonoBehaviour
 
         //Debug.Log(windowOffset);
 
+        Debug.Log("Shift wave called: " + windowOffset);
+
+        Draw();
+    }
+
+    public void SumWave(Wave other)
+    {
+        // Summing from OTHER to THIS
+        Debug.Log("SUMMING OTHER " + other.windowOffset);
+        other.StartCoroutine(other.AnimateFallCO(this));
+    }
+
+    void UpdateSum(Wave other)
+    {
+        // We sum the current wave here
+        for (int i = 0; i < other.windowSize; i++)
+        {
+            allHeights[i] += other.windowHeights[i];
+            //Debug.Log("all: " +  this.allHeights[i] + " wind: " + other.windowHeights[i]);
+        }
+
+        Draw();
+    }
+
+    /*public IEnumerator EndSumCO(Wave other)
+    {
+        yield return StartCoroutine(AnimateFallCO());
+    }*/
+
+
+    // Animate falling over toWave
+    private float fallPeriod = 0.5f;
+    Wave toWave;
+    public IEnumerator AnimateFallCO(Wave toWave)
+    {
+        this.toWave = toWave;
+        StopMovement();
+        for (int i = 0; i < windowSize; i++)
+        {
+            var bar = bars[i];
+            var tweener = bar.transform.DOMoveY(toWave.transform.position.y +
+                - windowHeights[i]/2 + toWave.allHeights[i]/2, fallPeriod);
+            if (i == windowSize - 1)
+            tweener.OnComplete(EndSum);
+            yield return new WaitForSeconds(0.2f);
+        }
+    }
+
+    void EndSum()
+    {
+        // Destroy this bars
+        for (int i = 0; i < windowSize; i++)
+        {
+            var bar = bars[i];
+            Destroy(bar.gameObject);
+        }
+
+        // Make sure the other gets updated now
+        this.toWave.UpdateSum(this);
+    }
+
+
+    public bool IsWaveZero()
+    {
+        return allHeights.Sum() == 0;
+    }
+
+    void Draw()
+    {
+        // Update the window
         windowHeights.Clear();
         for (int i = 0; i < windowSize; i++)
         {
@@ -110,47 +187,14 @@ public class Wave : MonoBehaviour
             windowHeights.Add(allHeights[j]);
         }
 
-        Draw();
-    }
-
-    public void SumWave(Wave other)
-    {
-        Debug.Log("SUMMING OTHER " + other.windowOffset);
-
-       // StartCoroutine(AnimateFallCO(other));
-
-        // We sum the current wave here
-        for (int i = 0; i < other.windowSize; i++)
-        {
-            allHeights[i] += other.windowHeights[i];
-            Debug.Log(other.windowHeights[i]);
-        }
-
-        Draw();
-    }
-
-    IEnumerator AnimateFallCO()
-    {
-        while (true)
-        {
-
-        }
-        //other
-    }
-
-    public bool IsWaveZero()
-    {
-        return allHeights.Sum() == 0;
-    }
-
-    void Draw()
-    {
+        // Draw it
         for (int i = 0; i < windowSize; i++)
         {
             //Debug.Log("DRAW " + this.name);
             var pos = bars[i].transform.localPosition;
             var size = bars[i].transform.localScale;
             pos.y = windowHeights[i] / 2f;
+
             if (windowHeights[i] < 0)
             {
                 if (withColors)
