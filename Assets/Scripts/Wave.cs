@@ -4,7 +4,9 @@ using UnityEngine;
 using System.Linq;
 using DG.Tweening;
 
-public class Wave : MonoBehaviour {
+public class Wave : MonoBehaviour
+{
+
     // OPTIONS
     private bool withColors = true;
     private bool colorsOnly = false;
@@ -25,6 +27,7 @@ public class Wave : MonoBehaviour {
     [HideInInspector]
     public int windowOffset;   // current window offset, increased at each step
 
+    public Transform zeroLine;
 
     // Bar
     private List<Bar> bars = new List<Bar>();
@@ -210,14 +213,15 @@ public class Wave : MonoBehaviour {
 
     void Draw()
     {
+        SetupLine();
+
         // Update the window
         windowHeights.Clear();
         for (int i = 0; i < lookWindowSize; i++)
         {
             var j = windowOffset + i;
-            if (j >= allHeights.Count) j -= allHeights.Count;
+            while (j >= allHeights.Count) j -= allHeights.Count;
             if (j < 0) j += allHeights.Count;
-            //Debug.Log("i " + i + ": j " + j);
             windowHeights.Add(allHeights[j]);
         }
 
@@ -240,7 +244,7 @@ public class Wave : MonoBehaviour {
                     }
                     else
                     {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0.4f, 0, 0, 1);
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0.2f, 0, 0, 1);
                         bars[i].name = "look";
                     }
                 }
@@ -259,7 +263,7 @@ public class Wave : MonoBehaviour {
                     }
                     else
                     {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0, 0.4f, 0, 1);
+                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0, 0.2f, 0, 1);
                         bars[i].name = "look";
                     }
                 }
@@ -270,5 +274,16 @@ public class Wave : MonoBehaviour {
             bars[i].transform.localPosition = pos;
         }
 
+    }
+
+    void SetupLine()
+    {
+        float lineOffset = barPlayWidth * lookWindowSize;
+        zeroLine.transform.localPosition = new Vector3(lineOffset / 2f - barPlayWidth, 0, 0);
+        zeroLine.transform.localScale = new Vector3(lineOffset + 2*barPlayWidth, 0.1f, 1);
+
+        var tmpLocPos = transform.localPosition;
+        tmpLocPos.x = -barPlayWidth * lookWindowSize / 2 + barPlayWidth/2;
+        transform.localPosition = tmpLocPos;
     }
 }
