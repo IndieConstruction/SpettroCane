@@ -10,6 +10,8 @@ public class Wave : MonoBehaviour
     private bool withColors = true;
     private bool colorsOnly = false;
 
+    public bool testCosine = false;
+
     public bool canMove = true;
 
     public WaveData wData;
@@ -41,12 +43,28 @@ public class Wave : MonoBehaviour
 
         WaveDelegate += MyData;
 
-        int[] values = new int[wData.values.Length];
-        for (int i = 0; i < wData.values.Length; i++)
+        int nValues;
+        int[] values;
+
+        if (testCosine)
         {
-            values[i] = WaveDelegate(i);
-            //Debug.Log(values[i]);
+            nValues = wData.values.Length;
+            values = new int[nValues];
+            for (int i = 0; i < nValues; i++)
+            {
+                values[i] = WaveDelegate(i);
+            }
         }
+        else
+        {
+            nValues = 100;
+            values = new int[nValues];
+            for (int i = 0; i < nValues; i++)
+            {
+                values[i] = MyCos(i*0.1f);
+            }
+        }
+
         CreateWave(values);
 
         Draw();
@@ -60,11 +78,11 @@ public class Wave : MonoBehaviour
         return wData.values[(int)value];
     }
 
-    /*int MyCos(float value)
+    int MyCos(float value)
     {
-        return (value > 5 && value < 9) ? -maxHeight : ((value > 2 && value < 7) ? maxHeight : 0);
-       // return (int)(10 * Mathf.Cos(value));
-    } */
+       // return (value > 5 && value < 9) ? -maxHeight : ((value > 2 && value < 7) ? maxHeight : 0);
+        return (int)(maxHeight * Mathf.Cos(value));
+    } 
 
     void CreateWave(int[] _heights)
     {
@@ -144,7 +162,8 @@ public class Wave : MonoBehaviour
 
 
     // Animate falling over toWave
-    private float fallPeriod = 0.5f;
+    private float fallPeriod = 0.2f;
+    private float fallDelay = 0.05f;
     Wave toWave;
     public IEnumerator AnimateFallCO(Wave toWave)
     {
@@ -154,10 +173,10 @@ public class Wave : MonoBehaviour
         {
             var bar = bars[i];
             var tweener = bar.transform.DOMoveY(toWave.transform.position.y +
-                - windowHeights[i]/2 + toWave.allHeights[i]/2, fallPeriod);
+                + windowHeights[i]/ 2f + toWave.allHeights[i] * 1.5f, fallPeriod);
             if (i == windowSize - 1)
             tweener.OnComplete(EndSum);
-            yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(fallDelay);
         }
     }
 
