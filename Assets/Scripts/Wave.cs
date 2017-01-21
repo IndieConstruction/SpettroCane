@@ -9,18 +9,21 @@ public class Wave : MonoBehaviour
     private bool withColors = true;
     private bool colorsOnly = false;
 
-
     public WaveData wData;
 
-    private List<int> heights = new List<int>();
+    public int windowSize = 10;
+    public int windowStep = 1;
+
+    private List<int> allHeights = new List<int>();         // all heights, as updated, read from the data initially
+    private List<int> windowHeights = new List<int>();      // current heights shown in the window
+
+    [HideInInspector]
+    public int windowOffset = 0;   // current window offset, increased at each step
+
     private List<Bar> bars = new List<Bar>();
     public GameObject barPrefab;
 
-    public int nValues = 10;
-
     public float period = 0;
-
-    public int steps = 10;
 
     private float barSize = 1f;
 
@@ -32,13 +35,12 @@ public class Wave : MonoBehaviour
     {
         WaveDelegate += MyData;
 
-        int[] values = new int[nValues];
-        for (int i = 0; i < nValues; i++)
+        int[] values = new int[wData.values.Length];
+        for (int i = 0; i < wData.values.Length; i++)
         {
             values[i] = WaveDelegate(i);
             //Debug.Log(values[i]);
         }
-
         CreateWave(values);
 
         StartCoroutine(MoveWaveCO());
@@ -49,18 +51,19 @@ public class Wave : MonoBehaviour
         return wData.values[(int)value];
     }
 
-    int MyCos(float value)
+    /*int MyCos(float value)
     {
         return (value > 5 && value < 9) ? -maxHeight : ((value > 2 && value < 7) ? maxHeight : 0);
        // return (int)(10 * Mathf.Cos(value));
-    } 
+    } */
 
     void CreateWave(int[] _heights)
     {
-        heights.Clear();
-        heights.AddRange(_heights);
+        allHeights.Clear();
+        allHeights.AddRange(_heights);
 
-        for (int i = 0; i < _heights.Length; i++)
+        // Instantiate
+        for (int i = 0; i < windowSize; i++)
         {
             GameObject go = Instantiate(barPrefab);
             go.transform.SetParent(transform);
@@ -80,19 +83,19 @@ public class Wave : MonoBehaviour
                 t -= period;
 
                 // Shift the wave
-                List<int> newHeights = new List<int>();
-                for (int i = 0; i < heights.Count; i++)
-                {
-                    var j = i + steps;
-                    if (j >= heights.Count) j = 0;
-                    newHeights.Add(heights[j]);
+                windowOffset += windowStep;
+                if (windowOffset >= allHeights.Count)
+                    windowOffset = 0;
 
-                }
+                //Debug.Log(windowOffset);
 
-                // Update the weight
-                for (int i = 0; i < heights.Count; i++)
+                windowHeights.Clear();
+                for (int i = 0; i < windowSize; i++)
                 {
-                    heights[i] = newHeights[i];
+                    var j = windowOffset + i;
+                    if (j >= allHeights.Count) j -= allHeights.Count;
+                    //Debug.Log("j at " + i + ": " + j);
+                    windowHeights.Add(allHeights[j]);
                 }
 
                 Draw();
@@ -105,33 +108,49 @@ public class Wave : MonoBehaviour
 
     public void SumWave(Wave other)
     {
-        for (int i = 0; i < heights.Count; i++)
+        Debug.Log("SUMMING OTHER " + other.windowOffset);
+
+       // StartCoroutine(AnimateFallCO(other));
+
+        // We sum the current wave here
+        for (int i = 0; i < other.windowSize; i++)
         {
-            heights[i] += other.heights[i];
+            allHeights[i] += other.windowHeights[i];
+            Debug.Log(other.windowHeights[i]);
         }
 
         Draw();
     }
 
+    IEnumerator AnimateFallCO()
+    {
+        while (true)
+        {
+
+        }
+        //other
+    }
+
     public bool IsWaveZero()
     {
-        return heights.Sum() == 0;
+        return allHeights.Sum() == 0;
     }
 
     void Draw()
     {
-        for (int i = 0; i < heights.Count; i++)
+        for (int i = 0; i < windowSize; i++)
         {
+            //Debug.Log("DRAW " + this.name);
             var pos = bars[i].transform.localPosition;
             var size = bars[i].transform.localScale;
-            pos.y = heights[i] / 2f;
-            if (heights[i] < 0)
+            pos.y = windowHeights[i] / 2f;
+            if (windowHeights[i] < 0)
             {
                 if (withColors)
                     bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
 
                 if (colorsOnly)
-                    pos.y = -heights[i] / 2f;
+                    pos.y = -allHeights[i] / 2f;
             }
             else
             {
@@ -139,7 +158,7 @@ public class Wave : MonoBehaviour
                     bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
             }
 
-            size.y = heights[i];
+            size.y = windowHeights[i];
             bars[i].transform.localScale = size;
             bars[i].transform.localPosition = pos;
         }
