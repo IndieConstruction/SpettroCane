@@ -14,16 +14,21 @@ public class LevelController : MonoBehaviour
 	void SetLevel(int levelId)
     {
         GameController.Instance.gameWaves[0].CreateFromWaveDatas(levelPacks[levelId].inputs);
-        GameController.Instance.targetWave.CreateFromWaveData(levelPacks[levelId].target);
+        //GameController.Instance.targetWave.CreateFromWaveData(levelPacks[levelId].target);
 
         // test: auto level generator
-        /*var targetWaveData = WaveData.CreateInstance<WaveData>();
-        targetWaveData.values = new int[GameController.Instance.gameWaves[0].HeightsNum];
+        var targetWaveData = WaveData.CreateInstance<WaveData>();
+        int targetSize = 20;
+        targetWaveData.values = new int[targetSize];    
         for (int i = 0; i < levelPacks[levelId].inputs.Length; i++)
         {
-
+            int rndOffset = Random.Range(0, targetSize);
+            for (int j = 0; j < levelPacks[levelId].inputs[i].values.Length; j++)
+            {
+                targetWaveData.values[(int)Mathf.Repeat(rndOffset + j, targetSize)] += -levelPacks[levelId].inputs[i].values[j];
+            }
         }
-       GameController.Instance.targetWave*/
+        GameController.Instance.targetWave.CreateFromWaveData(targetWaveData);
     }
 
 }
