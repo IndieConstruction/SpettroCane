@@ -10,6 +10,8 @@ public class Wave : MonoBehaviour
     private bool withColors = true;
     private bool colorsOnly = false;
 
+    public bool canMove = true;
+
     public WaveData wData;
 
     public int windowSize = 10;
@@ -44,7 +46,10 @@ public class Wave : MonoBehaviour
         }
         CreateWave(values);
 
-        StartCoroutine(MoveWaveCO());
+        Draw();
+
+        if (canMove)
+            StartCoroutine(MoveWaveCO());
     }
 
     int MyData(float value)
@@ -78,20 +83,19 @@ public class Wave : MonoBehaviour
         float t = 0;
         while (true)
         {
-            t += Time.deltaTime;
-            if (t >= period && canMove)
+            if (canMove)
             {
-                t -= period;
-
-                ShiftWave(windowStep);
-
-                if (period == 0) yield break;
+                t += Time.deltaTime;
+                if (t >= period)
+                {
+                    t -= period;
+                    ShiftWave(windowStep);
+                }
             }
             yield return null;
         }
     }
 
-    private bool canMove = true;
     void StopMovement()
     {
         canMove = false;
@@ -105,9 +109,7 @@ public class Wave : MonoBehaviour
             windowOffset = 0;
 
         //Debug.Log(windowOffset);
-
         Debug.Log("Shift wave called: " + windowOffset);
-
         Draw();
     }
 
