@@ -14,6 +14,7 @@ public class Wave : MonoBehaviour
     public bool testCosine = false;
 
     public bool autoMove = true;
+    public bool manualMove = true;
     public float autoPeriod = 0;
 
     // What the player can drop down (active size)
@@ -115,11 +116,21 @@ public class Wave : MonoBehaviour
         }
     }
 
-    void StopMovement() {
+    void StopMovement()
+    {
         autoMove = false;
+        manualMove = false;
+    }
+
+    void EnableMovement()
+    {
+        manualMove = true;
     }
 
     public void ShiftWave(int step) {
+
+        if (manualMove == false) return;
+
         // Shift the wave
         windowOffset += step;
         if (windowOffset >= allHeights.Count)
@@ -165,6 +176,7 @@ public class Wave : MonoBehaviour
         StopMovement();
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
+            if (windowHeights[i] == 0) continue;
             var bar = bars[i];
             var tweener = bar.transform.DOMoveY(toWave.transform.position.y +
                 + windowHeights[i] / 2f 
@@ -193,6 +205,9 @@ public class Wave : MonoBehaviour
 
         // Make sure the other gets updated now
         toWave.UpdateSum(this);
+
+        // Re-enable movement
+        EnableMovement();
     }
 
     void SoftDestroyBar(Bar _barToDestroy, int index) {
@@ -274,6 +289,7 @@ public class Wave : MonoBehaviour
 
             size.y = windowHeights[i];
             bars[i].transform.localScale = size;
+            bars[i].gameObject.SetActive(windowHeights[i] != 0);
             bars[i].transform.localPosition = pos;
         }
 
