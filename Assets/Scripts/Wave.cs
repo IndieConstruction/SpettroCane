@@ -9,23 +9,38 @@ public class Wave : MonoBehaviour
     private List<Bar> bars = new List<Bar>();
     public GameObject barPrefab;
 
+    public int nValues = 10;
+
     private float barSize = 1f;
+
+    private System.Func<float,int> WaveDelegate;
 
     public void Awake()
     {
-        CreateWave(new int[]
+        WaveDelegate += MyCos;
+
+        int[] values = new int[nValues];
+        for (int i = 0; i < nValues; i++)
         {
-            0,1,2,3,4,
-            5,5,4,3,2,
-        },
-        0.25f
-        );
+            values[i] = WaveDelegate(i);
+            Debug.Log(values[i]);
+        }
+
+        CreateWave(values, 0f);
 
         StartCoroutine(MoveWaveCO());
     }
 
+    int MyCos(float value)
+    {
+        return (value > 2 && value < 7) ? 10 : 0;
+       // return (int)(10 * Mathf.Cos(value));
+    } 
+
     void CreateWave(int[] _heights, float period)
     {
+        this.period = period;
+
         heights.Clear();
         heights.AddRange(_heights);
 
@@ -33,7 +48,7 @@ public class Wave : MonoBehaviour
         {
             GameObject go = Instantiate(barPrefab);
             go.transform.SetParent(transform);
-            go.transform.position = Vector3.right * i * barSize;
+            go.transform.localPosition = Vector3.right * i * barSize;
             bars.Add(go.GetComponent<Bar>());
         }
     }
@@ -52,7 +67,7 @@ public class Wave : MonoBehaviour
                 List<int> newHeights = new List<int>();
                 for (int i = 0; i < heights.Count; i++)
                 {
-                    var j = i + 1;
+                    var j = i;// + 1;
                     if (j >= heights.Count) j = 0;
                     newHeights.Add(heights[j]);
                 }
@@ -62,8 +77,11 @@ public class Wave : MonoBehaviour
                 {
                     heights[i] = newHeights[i];
                     var pos = bars[i].transform.position;
-                    pos.y = heights[i];
-                    bars[i].transform.position = pos;
+                    var size = bars[i].transform.localScale;
+                    pos.y = heights[i] / 2f;
+                    size.y = heights[i];
+                    bars[i].transform.localScale = size;
+                    bars[i].transform.localPosition = pos;
                 }
             }
             yield return null;
