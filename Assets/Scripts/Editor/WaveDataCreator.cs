@@ -4,13 +4,17 @@ using System.IO;
 
 public class WaveDataCreator : MonoBehaviour
 {
-
-    [MenuItem("Create/Create Level Data")]
-    public static void CreateLevelData()
+    [MenuItem("Create/Create Word Data")]
+    public static void CreateWordData()
     {
         ScriptableObjectUtility.CreateAsset<WaveData>();
     }
 
+    [MenuItem("Create/Create Word Pack Data")]
+    public static void CreateWordPackData()
+    {
+        ScriptableObjectUtility.CreateAsset<WaveDataPack>();
+    }
 }
  
 public static class ScriptableObjectUtility
