@@ -82,28 +82,33 @@ public class Wave : MonoBehaviour
             {
                 t -= period;
 
-                // Shift the wave
-                windowOffset += windowStep;
-                if (windowOffset >= allHeights.Count)
-                    windowOffset = 0;
-
-                //Debug.Log(windowOffset);
-
-                windowHeights.Clear();
-                for (int i = 0; i < windowSize; i++)
-                {
-                    var j = windowOffset + i;
-                    if (j >= allHeights.Count) j -= allHeights.Count;
-                    //Debug.Log("j at " + i + ": " + j);
-                    windowHeights.Add(allHeights[j]);
-                }
-
-                Draw();
+                ShiftWave(windowStep);
 
                 if (period == 0) yield break;
             }
             yield return null;
         }
+    }
+
+    public void ShiftWave(int step)
+    {
+        // Shift the wave
+        windowOffset += step;
+        if (windowOffset >= allHeights.Count)
+            windowOffset = 0;
+
+        //Debug.Log(windowOffset);
+
+        windowHeights.Clear();
+        for (int i = 0; i < windowSize; i++)
+        {
+            var j = windowOffset + i;
+            if (j >= allHeights.Count) j -= allHeights.Count;
+            //Debug.Log("j at " + i + ": " + j);
+            windowHeights.Add(allHeights[j]);
+        }
+
+        Draw();
     }
 
     public void SumWave(Wave other)
