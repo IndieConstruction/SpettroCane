@@ -21,7 +21,7 @@ public class Wave : MonoBehaviour
     private List<int> windowHeights = new List<int>();      // current heights shown in the window
 
     [HideInInspector]
-    public int windowOffset = 0;   // current window offset, increased at each step
+    public int windowOffset;   // current window offset, increased at each step
 
     private List<Bar> bars = new List<Bar>();
     public GameObject barPrefab;
@@ -36,6 +36,9 @@ public class Wave : MonoBehaviour
 
     public void Awake()
     {
+        // Init
+        windowOffset = 0;
+
         WaveDelegate += MyData;
 
         int[] values = new int[wData.values.Length];
@@ -108,7 +111,7 @@ public class Wave : MonoBehaviour
         if (windowOffset >= allHeights.Count)
             windowOffset = 0;
         if (windowOffset < 0)
-            windowOffset = allHeights.Count -1;
+            windowOffset = allHeights.Count - 1;
 
         //Debug.Log(windowOffset);
         Debug.Log("Shift wave called: " + windowOffset);
@@ -185,7 +188,7 @@ public class Wave : MonoBehaviour
         {
             var j = windowOffset + i;
             if (j >= allHeights.Count) j -= allHeights.Count;
-            //Debug.Log("j at " + i + ": " + j);
+            //Debug.Log("i " + i + ": j " + j);
             windowHeights.Add(allHeights[j]);
         }
 
