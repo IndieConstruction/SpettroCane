@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Grid : MonoBehaviour {
 
     public int Height = 15;
