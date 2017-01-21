@@ -22,8 +22,8 @@ public class Grid : MonoBehaviour {
             newTransform.position = new Vector3(0, (i * Height) + (i * YOffset), 0);
 
             Wave newWave = Instantiate<Wave>(Waves[i]);
-            newWave.transform.position = newTransform.position + new Vector3(-Width / 2, -Height/2, -1);
-
+            // newWave.transform.position = newTransform.position + new Vector3(-Width / 2, -Height/2, -1);
+            newWave.transform.position = newTransform.position + new Vector3((-Width / 2) + 0.5f, 0, -1);
         }
     }
     
