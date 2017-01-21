@@ -13,6 +13,7 @@ public class Wave : MonoBehaviour
     public float period = 0;
 
     private float barSize = 1f;
+    public int maxHeight = 10;
 
     private System.Func<float,int> WaveDelegate;
 
@@ -24,7 +25,7 @@ public class Wave : MonoBehaviour
         for (int i = 0; i < nValues; i++)
         {
             values[i] = WaveDelegate(i);
-            Debug.Log(values[i]);
+            //Debug.Log(values[i]);
         }
 
         CreateWave(values);
@@ -34,7 +35,7 @@ public class Wave : MonoBehaviour
 
     int MyCos(float value)
     {
-        return (value > 5 && value < 9) ? -10 : ((value > 2 && value < 7) ? 10 : 0);
+        return (value > 5 && value < 9) ? -maxHeight : ((value > 2 && value < 7) ? maxHeight : 0);
        // return (int)(10 * Mathf.Cos(value));
     } 
 
@@ -75,7 +76,7 @@ public class Wave : MonoBehaviour
                 for (int i = 0; i < heights.Count; i++)
                 {
                     heights[i] = newHeights[i];
-                    var pos = bars[i].transform.position;
+                    var pos = bars[i].transform.localPosition;
                     var size = bars[i].transform.localScale;
                     pos.y = heights[i] / 2f;
                     size.y = heights[i];
@@ -95,5 +96,10 @@ public class Wave : MonoBehaviour
             }
             yield return null;
         }
+    }
+
+    void WaveSum()
+    {
+
     }
 }
