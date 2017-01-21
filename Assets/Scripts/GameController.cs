@@ -28,11 +28,6 @@ public class GameController : MonoBehaviour
         {
             canManualControl = false;
             targetWave.SumWave(gameWave);
-
-            if (targetWave.IsWaveZero())
-            {
-                Debug.Log("ZEROED!");
-            }
         }
 
         if (Input.GetKeyDown(KeyCode.A)) {
@@ -60,7 +55,8 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// Checks the win.
     /// </summary>
-    public bool CheckWin(List<int> _elements) {
+    public bool CheckWin(List<int> _elements)
+    {
         // Lose
         if (_elements.FindIndex(b => b != 0) == -1) {
             if (OnWin != null) {

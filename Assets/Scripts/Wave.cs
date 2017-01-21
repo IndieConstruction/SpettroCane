@@ -167,15 +167,14 @@ public class Wave : MonoBehaviour
         // We sum the current wave here
         for (int i = other.PlayWindowStart; i < other.PlayWindowEnd; i++)
         {
-            allHeights[i - other.PlayWindowStart] += other.windowHeights[i];
-            allHeights[i - other.PlayWindowStart] = Mathf.Clamp(allHeights[i - other.PlayWindowStart], -maxHeight, maxHeight);
+            //Debug.Log(i + " to " + (i - other.PlayWindowStart));
+            allHeights[i] += other.windowHeights[i];
+            allHeights[i] = Mathf.Clamp(allHeights[i], -maxHeight, maxHeight);
 
             //Debug.Log("all: " +  this.allHeights[i] + " wind: " + other.windowHeights[i]);
         }
 
         Draw();
-
-
     }
 
     // Animate falling over toWave
@@ -195,7 +194,7 @@ public class Wave : MonoBehaviour
             Tweener tweener = bar.transform.DOMoveY(toWave.transform.position.y +
                 + 0.5f
                // + windowHeights[i] / 2f 
-                + toWave.allHeights[i - PlayWindowStart] * 1f, fallPeriod).SetEase(fallEase);
+                + toWave.allHeights[i] * 1f, fallPeriod).SetEase(fallEase);
             lastTweener = tweener;
             yield return new WaitForSeconds(fallDelay);
         }
@@ -258,14 +257,16 @@ public class Wave : MonoBehaviour
                 {
                     // Re-enable movement
                     EnableMovement();
+
+                    if (!IsTargetWave)
+                    {
+                        if (!GameController.Instance.CheckWin(toWave.allHeights))
+                            GameController.Instance.CheckLose(allHeights);
+                    }
                 }
             });
         }
 
-        if (!IsTargetWave) {
-            if(!GameController.Instance.CheckWin(toWave.allHeights))
-                GameController.Instance.CheckLose(allHeights);
-        }
     }
 
     public bool IsWaveZero()
