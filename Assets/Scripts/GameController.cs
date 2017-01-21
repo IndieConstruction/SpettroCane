@@ -33,11 +33,11 @@ public class GameController : MonoBehaviour
         }
 
         if (Input.GetKeyDown(KeyCode.A)) {
-            GameController.Instance.gameWave.ShiftWave(-ShiftWaveAmount);
+            GameController.Instance.gameWave.ShiftWave(ShiftWaveAmount);
         }
 
         if (Input.GetKeyDown(KeyCode.D)) {
-            GameController.Instance.gameWave.ShiftWave(ShiftWaveAmount);
+            GameController.Instance.gameWave.ShiftWave(-ShiftWaveAmount);
         }
     }
 

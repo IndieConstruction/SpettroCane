@@ -160,18 +160,22 @@ public class Wave : MonoBehaviour
     public float fallDelay = 0.05f;
     public Ease fallEase;
     Wave toWave;
+
     public IEnumerator AnimateFallCO(Wave toWave) {
         this.toWave = toWave;
         StopMovement();
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
-            var bar = bars[i];
-            var tweener = bar.transform.DOMoveY(toWave.transform.position.y +
-                + windowHeights[i] / 2f 
-                + toWave.allHeights[i] * 1f, fallPeriod).SetEase(fallEase);
-            if (i == playWindowSize - 1)
-                tweener.OnComplete(EndSum);
-            yield return new WaitForSeconds(fallDelay);
+            if (allHeights[i] != 0) {
+                var bar = bars[i];
+                var tweener = bar.transform.DOMoveY(toWave.transform.position.y +
+                    +windowHeights[i] / 2f
+                    + toWave.allHeights[i] * 1f, fallPeriod).SetEase(fallEase);
+                if (i == playWindowSize - 1)
+                    tweener.OnComplete(EndSum);
+                yield return new WaitForSeconds(fallDelay);
+            }
+            yield return null;
         }
     }
 
