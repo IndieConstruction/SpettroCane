@@ -45,6 +45,9 @@ public class Wave : MonoBehaviour
     private int PlayWindowStart { get { return (lookWindowSize / 2 - playWindowSize / 2); } }
     private int PlayWindowEnd { get { return (lookWindowSize / 2 + playWindowSize / 2); } }
 
+    private float endWait = 0.3f;
+
+
     #region Wave data
     public void CreateFromWaveData(WaveData waveData) {
         List<int> values = new List<int>();
@@ -104,6 +107,7 @@ public class Wave : MonoBehaviour
             go.transform.SetParent(transform);
             go.transform.localPosition = Vector3.right * i * barPlayWidth;
             Bar newBar = go.GetComponent<Bar>();
+            newBar.Initialise(maxHeight);
             bars.Add(newBar);
         }
     }
@@ -163,17 +167,13 @@ public class Wave : MonoBehaviour
         for (int i = other.PlayWindowStart; i < other.PlayWindowEnd; i++)
         {
             allHeights[i - other.PlayWindowStart] += other.windowHeights[i];
+            allHeights[i - other.PlayWindowStart] = Mathf.Clamp(allHeights[i - other.PlayWindowStart], -maxHeight, maxHeight);
+
             //Debug.Log("all: " +  this.allHeights[i] + " wind: " + other.windowHeights[i]);
         }
 
         Draw();
     }
-
-    /*public IEnumerator EndSumCO(Wave other)
-    {
-        yield return StartCoroutine(AnimateFallCO());
-    }*/
-
 
     // Animate falling over toWave
     public float fallPeriod = 0.2f;
@@ -190,7 +190,8 @@ public class Wave : MonoBehaviour
             
             var bar = bars[i];
             Tweener tweener = bar.transform.DOMoveY(toWave.transform.position.y +
-                + windowHeights[i] / 2f 
+                + 0.5f
+               // + windowHeights[i] / 2f 
                 + toWave.allHeights[i - PlayWindowStart] * 1f, fallPeriod).SetEase(fallEase);
             lastTweener = tweener;
             yield return new WaitForSeconds(fallDelay);
@@ -209,12 +210,15 @@ public class Wave : MonoBehaviour
     }
 
     IEnumerator EndSumCO() {
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(endWait);
 
         // Destroy this bars
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
             var bar = bars[i];
+
+            //bar.GetComponentInChildren<MeshRenderer>().material.DOColor(Color.white, 0.2f).SetLoops(2, LoopType.Yoyo);
+
             var data_i = i + windowOffset;
             if (data_i >= allHeights.Count) data_i -= allHeights.Count;
             SoftDestroyBar(bar, i, data_i, lastone: i == PlayWindowEnd-1);
@@ -223,28 +227,61 @@ public class Wave : MonoBehaviour
         // Make sure the other gets updated now
         toWave.UpdateSum(this);
 
+        //StartCoroutine(toWave.WinCO());
     }
 
-    void SoftDestroyBar(Bar _barToDestroy, int windowIndex, int dataIndex, bool lastone = false) {
+    void SoftDestroyBar(Bar _barToDestroy, int windowIndex, int dataIndex, bool lastone = false)
+    {
         float effectDuration = 0.2f;
-        _barToDestroy.barSprite.DOFade(0, effectDuration).OnComplete(() => {
-            var tmp = _barToDestroy.transform.localPosition;
-            tmp.y = 0;
-            _barToDestroy.transform.localPosition = tmp;
 
-            //Debug.Log("SET TO ZERO " + windowIndex);
-            windowHeights[windowIndex] = 0;
-            allHeights[dataIndex] = 0;
-
-            if (lastone)
+        foreach (var cube in _barToDestroy.cubes)
+        {
+            cube.transform.DOScaleY(0, effectDuration).OnComplete(() =>
             {
-                // Re-enable movement
-                EnableMovement();
-            }
-        });
-        _barToDestroy.transform.DOScaleY(0, effectDuration);
-        _barToDestroy.transform.DOMoveY(-windowHeights[windowIndex]/2, effectDuration);
+                var tmp = _barToDestroy.transform.localPosition;
+                tmp.y = 0;
+                _barToDestroy.transform.localPosition = tmp;
+                cube.gameObject.SetActive(false);
+                cube.transform.localScale = new Vector3(1.7f, 0.8f, 0.1f);
+
+                //Debug.Log("SET TO ZERO " + windowIndex);
+                windowHeights[windowIndex] = 0;
+                allHeights[dataIndex] = 0;
+                //  var col = cube.GetComponent<MeshRenderer>().material.color;
+                //  col.a = 1;
+                //  cube.GetComponent<MeshRenderer>().material.color = col;
+
+                if (lastone)
+                {
+                    // Re-enable movement
+                    EnableMovement();
+                }
+            });
+        }
+
+        //_barToDestroy.transform.DOScaleY(1, effectDuration).OnComplete(() => {
+
+            /* var tmp = _barToDestroy.transform.localPosition;
+             tmp.y = 0;
+             _barToDestroy.transform.localPosition = tmp;
+
+             //Debug.Log("SET TO ZERO " + windowIndex);
+             windowHeights[windowIndex] = 0;
+             allHeights[dataIndex] = 0;
+             //  var col = cube.GetComponent<MeshRenderer>().material.color;
+             //  col.a = 1;
+             //  cube.GetComponent<MeshRenderer>().material.color = col;
+             if (lastone)
+             {
+                 // Re-enable movement
+                 EnableMovement();
+             }
+             */
+            // });
+
+            //_barToDestroy.transform.DOMoveY(windowHeights[windowIndex]/2f, effectDuration).SetRelative(true);
     }
+
 
 
     public bool IsWaveZero()
@@ -271,8 +308,7 @@ public class Wave : MonoBehaviour
         {
             //Debug.Log("DRAW " + this.name);
             var pos = bars[i].transform.localPosition;
-            var size = bars[i].transform.localScale;
-            pos.y = windowHeights[i] / 2f;
+            pos.y = 1f / 2f;// windowHeights[i] / 2f;
 
             if (windowHeights[i] < 0)
             {
@@ -280,12 +316,15 @@ public class Wave : MonoBehaviour
                 {
                     if (i >= PlayWindowStart && i < PlayWindowEnd)
                     {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+                        bars[i].SetColor(Color.blue, Color.cyan);
+                       // bars[i].SetColor(new Color(1, 0.5f, 0.5f, 1), new Color(0.6f, 0, 0, 1));
+                        //bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
                         bars[i].name = "PLAY";
                     }
                     else
                     {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0.2f, 0, 0, 1);
+                        bars[i].SetColor(new Color(0.2f, 0, 0, 1), new Color(0.2f, 0, 0, 1));
+                        //bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0.2f, 0, 0, 1);
                         bars[i].name = "look";
                     }
                 }
@@ -299,19 +338,19 @@ public class Wave : MonoBehaviour
                 {
                     if (i >= PlayWindowStart && i < PlayWindowEnd)
                     {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+                        bars[i].SetColor(Color.yellow, new Color(1f, 0.5f, 0, 1));
                         bars[i].name = "PLAY";
                     }
                     else
                     {
-                        bars[i].GetComponentInChildren<MeshRenderer>().material.color = new Color(0, 0.2f, 0, 1);
+                        bars[i].SetColor(new Color(0, 0.2f, 0, 1), new Color(0, 0.2f, 0, 1));
                         bars[i].name = "look";
                     }
                 }
             }
 
-            size.y = windowHeights[i];
-            bars[i].transform.localScale = size;
+            bars[i].SetHeight(windowHeights[i]);
+
             bars[i].gameObject.SetActive(windowHeights[i] != 0);
             bars[i].transform.localPosition = pos;
         }
@@ -327,5 +366,28 @@ public class Wave : MonoBehaviour
         var tmpLocPos = transform.localPosition;
         tmpLocPos.x = -barPlayWidth * lookWindowSize / 2 + barPlayWidth/2;
         transform.localPosition = tmpLocPos;
+    }
+
+    IEnumerator WinCO()
+    {
+        autoPeriod = 0.1f;
+        autoMove = true;
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            bars[i].Initialise(10);
+        }
+
+        while (true)
+        {
+            for (int i = 0; i < bars.Count; i++)
+            {
+                Color color1 = Color.HSVToRGB(Mathf.Repeat(Time.time*2f + i * 0.1f, 1f), 1, 1);
+                Color color2 = Color.HSVToRGB(Mathf.Repeat(Time.time * 5f + i *0.1f, 1f), 1, 1);
+                bars[i].SetColor(color1, color2);
+                bars[i].SetHeight((int)Mathf.Round(10*(Mathf.PerlinNoise(Time.time * 4f + i*2f, 0))));
+            }
+            yield return null;
+        }
     }
 }
