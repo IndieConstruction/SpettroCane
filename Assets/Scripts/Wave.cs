@@ -96,7 +96,6 @@ public class Wave : MonoBehaviour
             go.transform.SetParent(transform);
             go.transform.localPosition = Vector3.right * i * barPlayWidth;
             Bar newBar = go.GetComponent<Bar>();
-            newBar.value = (int)barPlayWidth; // TODO: check
             bars.Add(newBar);
         }
     }
@@ -187,7 +186,9 @@ public class Wave : MonoBehaviour
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
             var bar = bars[i];
-            SoftDestroyBar(bar,i);
+            var data_i = i + windowOffset;
+            if (data_i >= allHeights.Count) data_i -= allHeights.Count;
+            SoftDestroyBar(bar,data_i);
         }
 
         // Make sure the other gets updated now
@@ -203,7 +204,6 @@ public class Wave : MonoBehaviour
 
             Debug.Log("SET TO ZERO " + index);
             allHeights[index] = 0;
-            _barToDestroy.value = 0;
         });
         _barToDestroy.transform.DOScaleY(0, effectDuration);
     }
@@ -236,7 +236,7 @@ public class Wave : MonoBehaviour
             var size = bars[i].transform.localScale;
             pos.y = windowHeights[i] / 2f;
 
-            if (windowHeights[i] < 0 && bars[i].value != 0)
+            if (windowHeights[i] < 0)
             {
                 if (withColors)
                 {
@@ -273,8 +273,7 @@ public class Wave : MonoBehaviour
             }
 
             size.y = windowHeights[i];
-            if(bars[i].value != 0)
-                bars[i].transform.localScale = size;
+            bars[i].transform.localScale = size;
             bars[i].transform.localPosition = pos;
         }
 

@@ -5,5 +5,5 @@ using UnityEngine;
 public class Bar : MonoBehaviour
 {
     public SpriteRenderer barSprite;
-    public int value;
+
 }
