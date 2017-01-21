@@ -10,12 +10,11 @@ public class GameController : MonoBehaviour
 
     public static GameController Instance;
 
-    void Start ()
-    {
+    private void Awake() {
         if (Instance == null)
             Instance = this;
-	}
-	
+    }
+    
 	void Update ()
     {
 		if (Input.GetKeyDown(KeyCode.Space))
@@ -27,6 +26,14 @@ public class GameController : MonoBehaviour
                 Debug.Log("ZEROED!");
             }
         }
-	}
+
+        if (Input.GetKeyDown(KeyCode.A)) {
+            GameController.Instance.gameWaves[0].ShiftWave(GameController.Instance.gameWaves[0].windowStep - GameController.Instance.gameWaves[0].windowSize);
+        }
+
+        if (Input.GetKeyDown(KeyCode.D)) {
+            GameController.Instance.gameWaves[0].ShiftWave(GameController.Instance.gameWaves[0].windowStep + GameController.Instance.gameWaves[0].windowSize);
+        }
+    }
 
 }
