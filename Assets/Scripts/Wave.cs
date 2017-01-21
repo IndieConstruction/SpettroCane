@@ -96,6 +96,8 @@ public class Wave : MonoBehaviour
         windowOffset += step;
         if (windowOffset >= allHeights.Count)
             windowOffset = 0;
+        if (windowOffset < 0)
+            windowOffset = allHeights.Count -1;
 
         //Debug.Log(windowOffset);
 
