@@ -46,7 +46,7 @@ public class Wave : MonoBehaviour
         int nValues;
         int[] values;
 
-        if (testCosine)
+        if (!testCosine)
         {
             nValues = wData.values.Length;
             values = new int[nValues];
