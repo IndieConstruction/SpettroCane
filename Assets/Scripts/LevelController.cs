@@ -5,10 +5,13 @@ using UnityEngine;
 public class LevelController : MonoBehaviour
 {
     public WaveDataPack[] levelPacks;
+    public List<Target> TargetList;
+    public List<Piece> Pieces;
 
     private void Start()
     {
         SetLevel(0);
+        LoadLevelsFile();
     }
     
 	void SetLevel(int levelId)
@@ -29,6 +32,20 @@ public class LevelController : MonoBehaviour
             }
         }
         GameController.Instance.targetWave.CreateFromWaveData(targetWaveData);*/
+
+
     }
+
+    Level CurrentLevel;
+
+    void LoadLevelsFile() {
+        TextAsset JsonText = Resources.Load<TextAsset>("LevelsAndPieces/LevelsAndPieces");
+
+        CurrentLevel = new Level();
+        TargetList = new List<Target>();
+        TargetList.Add(JsonUtility.FromJson<Target>(JsonText.text));
+        Pieces = new List<Piece>();
+        Pieces.Add(JsonUtility.FromJson<Piece>(JsonText.text));
+    } 
 
 }
