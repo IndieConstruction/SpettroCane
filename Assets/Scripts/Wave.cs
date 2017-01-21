@@ -75,6 +75,7 @@ public class Wave : MonoBehaviour
     #endregion
 
     public void Awake() {
+
         // Init
         windowOffset = 0;
 
@@ -86,9 +87,15 @@ public class Wave : MonoBehaviour
             StartCoroutine(MoveWaveCO());
     }
 
-    void CreateWave(List<int> _heights) {
+    void CreateWave(List<int> _heights)
+    {
         allHeights.Clear();
         allHeights.AddRange(_heights);
+
+        if (allHeights.Count < lookWindowSize)
+        {
+            throw new System.Exception("ALL HEIGHTS MUST BE LONGER THAN LOOK WINDOW SIZE!");
+        }
 
         // Instantiate
         for (int i = 0; i < lookWindowSize; i++)
@@ -149,11 +156,12 @@ public class Wave : MonoBehaviour
         other.StartCoroutine(other.AnimateFallCO(this));
     }
 
-    void UpdateSum(Wave other) {
+    void UpdateSum(Wave other)
+    {
         // We sum the current wave here
         for (int i = other.PlayWindowStart; i < other.PlayWindowEnd; i++)
         {
-            allHeights[i] += other.windowHeights[i];
+            allHeights[i - other.PlayWindowStart] += other.windowHeights[i];
             //Debug.Log("all: " +  this.allHeights[i] + " wind: " + other.windowHeights[i]);
         }
 
@@ -177,10 +185,12 @@ public class Wave : MonoBehaviour
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)
         {
             if (windowHeights[i] == 0) continue;
+
+            Debug.Log("AA " + i);
             var bar = bars[i];
             var tweener = bar.transform.DOMoveY(toWave.transform.position.y +
                 + windowHeights[i] / 2f 
-                + toWave.allHeights[i] * 1f, fallPeriod).SetEase(fallEase);
+                + toWave.allHeights[i - PlayWindowStart] * 1f, fallPeriod).SetEase(fallEase);
             if (i == playWindowSize - 1)
                 tweener.OnComplete(EndSum);
             yield return new WaitForSeconds(fallDelay);
@@ -298,7 +308,7 @@ public class Wave : MonoBehaviour
     void SetupLine()
     {
         float lineOffset = barPlayWidth * lookWindowSize;
-        zeroLine.transform.localPosition = new Vector3(lineOffset / 2f - barPlayWidth, 0, 0);
+        zeroLine.transform.localPosition = new Vector3(lineOffset / 2f - barPlayWidth/2f, 0, 0);
         zeroLine.transform.localScale = new Vector3(lineOffset + 2*barPlayWidth, 0.1f, 1);
 
         var tmpLocPos = transform.localPosition;
