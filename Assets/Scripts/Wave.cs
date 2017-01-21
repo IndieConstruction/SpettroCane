@@ -23,18 +23,25 @@ public class Wave : MonoBehaviour
     [HideInInspector]
     public int windowOffset;   // current window offset, increased at each step
 
+
+    // Bar
     private List<Bar> bars = new List<Bar>();
     public GameObject barPrefab;
+    private float barSize = 1f;
 
     public float period = 0;
 
-    private float barSize = 1f;
 
     public int maxHeight = 4;
 
     //private System.Func<float,int> WaveDelegate;
 
-     public int HeightsNum { get { return allHeights.Count; } }
+
+    //public int lookWindowSize = 20;
+    // private int lookWindowOffset = 0;
+
+
+    public int HeightsNum { get { return allHeights.Count; } }
 
     #region Wave data
     public void CreateFromWaveData(WaveData waveData)

@@ -22,7 +22,7 @@ public class Grid : MonoBehaviour {
 
         Wave newWaveTarget = Instantiate<Wave>(GameController.Instance.targetWavePrefab);
         newWaveTarget.transform.position = newTransformTarget.position + new Vector3((-Width / 2) + 0.5f, 0, -1);
-        newWaveTarget.canMove = false;
+        newWaveTarget.autoMove = false;
         GameController.Instance.targetWave = newTransformTarget.GetComponent<Wave>();
         // 
         for (int i = 0; i < GameController.Instance.gameWavesPrefab.Count; i++) {
@@ -34,7 +34,7 @@ public class Grid : MonoBehaviour {
             Wave newWave = Instantiate<Wave>(GameController.Instance.gameWavesPrefab[i]);
             // newWave.transform.position = newTransform.position + new Vector3(-Width / 2, -Height/2, -1);
             newWave.transform.position = newTransform.position + new Vector3((-Width / 2) + 0.5f, 0, -1);
-            newWave.canMove = false;
+            newWave.autoMove = false;
             GameController.Instance.gameWave = newWave.GetComponent<Wave>();
         }
     }

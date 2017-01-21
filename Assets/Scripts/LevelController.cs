@@ -13,7 +13,7 @@ public class LevelController : MonoBehaviour
     
 	void SetLevel(int levelId)
     {
-        GameController.Instance.gameWaves[0].CreateFromWaveDatas(levelPacks[levelId].inputs);
+        GameController.Instance.gameWave.CreateFromWaveDatas(levelPacks[levelId].inputs);
         //GameController.Instance.targetWave.CreateFromWaveData(levelPacks[levelId].target);
 
         // test: auto level generator

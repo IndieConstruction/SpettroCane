@@ -10,7 +10,7 @@ public class GameController : MonoBehaviour
 
     public int ShiftWaveAmount = 1;
 
-    [HideInInspector]
+    //[HideInInspector]
     public Wave targetWave, gameWave;
 
     public static GameController Instance;
@@ -24,9 +24,9 @@ public class GameController : MonoBehaviour
     {
 		if (Input.GetKeyDown(KeyCode.Space))
         {
-            targetWavePrefab.SumWave(gameWavesPrefab[0]);
+            targetWave.SumWave(gameWave);
 
-            if (targetWavePrefab.IsWaveZero())
+            if (targetWave.IsWaveZero())
             {
                 Debug.Log("ZEROED!");
             }
