@@ -5,6 +5,11 @@ using System.Linq;
 
 public class Wave : MonoBehaviour
 {
+    // OPTIONS
+    private bool withColors = true;
+    private bool colorsOnly = false;
+
+
     public WaveData wData;
 
     private List<int> heights = new List<int>();
@@ -81,6 +86,7 @@ public class Wave : MonoBehaviour
                     var j = i + steps;
                     if (j >= heights.Count) j = 0;
                     newHeights.Add(heights[j]);
+
                 }
 
                 // Update the weight
@@ -119,18 +125,23 @@ public class Wave : MonoBehaviour
             var pos = bars[i].transform.localPosition;
             var size = bars[i].transform.localScale;
             pos.y = heights[i] / 2f;
-            size.y = heights[i];
-            bars[i].transform.localScale = size;
-            bars[i].transform.localPosition = pos;
-
             if (heights[i] < 0)
             {
-                bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+                if (withColors)
+                    bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.red;
+
+                if (colorsOnly)
+                    pos.y = -heights[i] / 2f;
             }
             else
             {
-                bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
+                if (withColors)
+                    bars[i].GetComponentInChildren<MeshRenderer>().material.color = Color.green;
             }
+
+            size.y = heights[i];
+            bars[i].transform.localScale = size;
+            bars[i].transform.localPosition = pos;
         }
 
     }
