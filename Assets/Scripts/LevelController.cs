@@ -120,6 +120,11 @@ public class LevelController : MonoBehaviour
         }
         GameController.Instance.targetWave.CreateFromWaveData(targetWaveData);*/
 
+        if (OnNewLevel != null)
+        {
+            OnNewLevel();
+        }
+
 
         // ******************************
         // New Level Type Generation
@@ -167,7 +172,7 @@ public class LevelController : MonoBehaviour
             GameController.Instance.gameWave.playWindowSize = targetSize;
             GameController.Instance.targetWave.playWindowSize = targetSize;
             GameController.Instance.targetWave.CreateFromWaveData(targetWaveData, 0);
-            GameController.Instance.gameWave.CreateFromWaveDatas(usedDatas, targetSize/2);
+            GameController.Instance.gameWave.CreateFromWaveDatas(usedDatas, targetSize);
 
             float windowBoxSize = 1;
             switch (targetSize)
@@ -229,11 +234,6 @@ public class LevelController : MonoBehaviour
         }
 
         // ******************************
-
-        if (OnNewLevel != null)
-        {
-            OnNewLevel();
-        }
 
     }
 
