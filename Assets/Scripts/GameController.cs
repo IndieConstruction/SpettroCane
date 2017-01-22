@@ -21,10 +21,24 @@ public class GameController : MonoBehaviour
 
     public bool canManualControl = true;
 
+    public SoundManager SoundMngr;
+
     private void Awake() {
         if (Instance == null)
             Instance = this;
+        SoundMngr =  GetComponent<SoundManager>();
         LoadLevelsFile();
+
+        GameController.Instance.SoundMngr.PlayClip(SoundManager.Clip.Main, false);
+        //GameController.Instance.SoundMngr.PlayLayeredMusic(1, 0, 0);
+        //GameController.Instance.SoundMngr.PlayLayeredMusic(2, 0, 0);
+        //GameController.Instance.SoundMngr.PlayLayeredMusic(3, 0, 0);
+
+        GameController.Instance.SoundMngr.PlayLayeredMusic(1, 1);
+        //GameController.Instance.SoundMngr.PlayLayeredMusic(2, 1);
+        //GameController.Instance.SoundMngr.PlayLayeredMusic(3, 1);
+
+
     }
     
 	void Update ()
