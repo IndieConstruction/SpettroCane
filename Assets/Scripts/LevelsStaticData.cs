@@ -4,9 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-public class Level {
+public class LevelsStaticData {
     public List<Target> Targets;
     public List<Piece> Pieces;
+
+    public void GetTargetWaveById(string _Id) {
+
+    }
 }
 
 
