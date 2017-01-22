@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -12,6 +13,9 @@ public class LevelController : MonoBehaviour
     public delegate void GameFlowEvent();
 
     public static event GameFlowEvent OnNewLevel;
+
+    public Transform showWindowBackgroundTr;
+
 
     public static void ResetStatic()
     {
@@ -124,12 +128,30 @@ public class LevelController : MonoBehaviour
                 GameController.Instance.gameWave.playWindowSize = window;
                 GameController.Instance.targetWave.playWindowSize = window;
 
-                int target_span = 6;
+                int target_span = 0;    // automatic addition anyway
                 GameController.Instance.targetWave.CreateFromWaveData(targetWave, target_span);
 
                 int span = GetSpan(levelId.ToString());
                 WaveData[] gameWaves = WaveDataInputsProxy(levelId.ToString());
                 GameController.Instance.gameWave.CreateFromWaveDatas(gameWaves, span);
+
+                float windowBoxSize = 1;
+                switch (window)
+                {
+                    case 6:
+                        windowBoxSize = 16;
+                        break;
+                    case 8:
+                        windowBoxSize = 20;
+                        break;
+                    case 10:
+                        windowBoxSize = 25;
+                        break;
+                }
+
+                var tmpScale = showWindowBackgroundTr.transform.localScale;
+                tmpScale.x = windowBoxSize;
+                showWindowBackgroundTr.transform.localScale = tmpScale;
             }
         }
 
@@ -155,7 +177,12 @@ public class LevelController : MonoBehaviour
             WaveData data;
             data = ScriptableObject.CreateInstance<WaveData>();
 
+            bool negate = target.Negate != "";
+
             Piece piece = GameController.DataLevel.Pieces.Find(p => p.ID == target.TargetLink);
+
+            if (piece == null)
+                throw new Exception("Could not find piece " + target.TargetLink);
 
             int MAX_VALUES = 10;
             int data_length = 0;
@@ -176,6 +203,7 @@ public class LevelController : MonoBehaviour
                 //Debug.Log(i);
                 //Debug.Log(piece.GetR(i));
                 data.values[i] = int.TryParse(piece.GetR(i), out defaultOut) ? defaultOut : -int.Parse(piece.GetR(i));
+                if (negate) data.values[i] *= -1;
             }
 
             dataList.Add(data);

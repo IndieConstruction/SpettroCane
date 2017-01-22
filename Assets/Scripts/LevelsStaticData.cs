@@ -20,6 +20,7 @@ public class Target {
     public string TargetLink;
     public string Window;
     public string Span;
+    public string Negate;
     public string R0;
     public string R1;
     public string R2;
@@ -74,7 +75,6 @@ public class Target {
 [Serializable]
 public class Piece {
     public string ID;
-    //public string TargetLink;
     public string R0;
     public string R1;
     public string R2;

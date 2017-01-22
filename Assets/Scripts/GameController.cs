@@ -40,8 +40,12 @@ public class GameController : MonoBehaviour
 
 
     }
-    
-	void Update ()
+
+    private float rightTime = 0;
+    private float leftTime = 0;
+    private bool autoRight = false;
+    private bool autoLeft = false;
+    void Update ()
     {
 		if (Input.GetKeyDown(KeyCode.Space) && canManualControl)
         {
@@ -49,12 +53,60 @@ public class GameController : MonoBehaviour
             targetWave.SumWave(gameWave);
         }
 
-        if (Input.GetKeyDown(KeyCode.A)) {
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow)) {
             GameController.Instance.gameWave.ShiftWave(ShiftWaveAmount);
         }
+        if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+        {
+            leftTime += Time.deltaTime;
+            if (leftTime > 0.25f && !autoLeft)
+            {
+                autoLeft = true;
+                StartCoroutine("AutoMoveLeftCO");
+            }
+        }
+        else
+        {
+            autoLeft = false;
+            leftTime = 0;
+            StopCoroutine("AutoMoveLeftCO");
+        }
 
-        if (Input.GetKeyDown(KeyCode.D)) {
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow)) {
             GameController.Instance.gameWave.ShiftWave(-ShiftWaveAmount);
+        }
+        if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
+        {
+            rightTime += Time.deltaTime;
+            if (rightTime > 0.25f && !autoRight)
+            {
+                autoRight = true;
+                StartCoroutine("AutoMoveRightCO");
+            }
+        }
+        else
+        {
+            autoRight = false;
+            rightTime = 0;
+            StopCoroutine("AutoMoveRightCO");
+        }
+    }
+
+    IEnumerator AutoMoveRightCO()
+    {
+        while (true)
+        {
+            GameController.Instance.gameWave.ShiftWave(-ShiftWaveAmount);
+            yield return new WaitForSeconds(0.05f);
+        }
+    }
+
+    IEnumerator AutoMoveLeftCO()
+    {
+        while (true)
+        {
+            GameController.Instance.gameWave.ShiftWave(ShiftWaveAmount);
+            yield return new WaitForSeconds(0.05f);
         }
     }
 
