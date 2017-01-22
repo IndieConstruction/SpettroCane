@@ -17,7 +17,7 @@ public class LevelController : MonoBehaviour
         GameController.OnWin += OnWin;
         GameController.OnLose += OnLose;
         LevelController.OnNewLevel += HOnNewLevel;
-        SetLevel(0);
+        SetLevel(1);
     }
 
     void HOnNewLevel()
