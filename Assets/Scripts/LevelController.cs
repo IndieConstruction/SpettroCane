@@ -59,6 +59,10 @@ public class LevelController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Alpha4)) SetLevel(4);
         if (Input.GetKeyDown(KeyCode.Alpha5)) SetLevel(5);
         if (Input.GetKeyDown(KeyCode.Alpha6)) SetLevel(6);
+        if (Input.GetKeyDown(KeyCode.Alpha7)) SetLevel(7);
+        if (Input.GetKeyDown(KeyCode.Alpha8)) SetLevel(8);
+        if (Input.GetKeyDown(KeyCode.Alpha9)) SetLevel(9);
+        if (Input.GetKeyDown(KeyCode.Alpha0)) SetLevel(10);
 
         if (levelWon)
         {
