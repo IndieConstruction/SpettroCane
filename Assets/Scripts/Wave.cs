@@ -175,7 +175,7 @@ public class Wave : MonoBehaviour
         if (windowOffset >= allHeights.Count)
             windowOffset = 0;
         if (windowOffset < 0)
-            windowOffset = allHeights.Count;
+            windowOffset = allHeights.Count-1;
 
         //Debug.Log(windowOffset);
         //Debug.Log("Shift wave called: " + windowOffset);
