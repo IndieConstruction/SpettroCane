@@ -14,7 +14,6 @@ public class LevelController : MonoBehaviour
         GameController.OnWin += OnWin;
 
         SetLevel(0);
-        LoadLevelsFile();
     }
 
     bool levelWon = false;
@@ -90,16 +89,8 @@ public class LevelController : MonoBehaviour
 
     }
 
-    Level CurrentLevel;
+    
 
-    void LoadLevelsFile() {
-        TextAsset JsonText = Resources.Load<TextAsset>("LevelsAndPieces/LevelsAndPieces");
 
-        CurrentLevel = new Level();
-        TargetList = new List<Target>();
-        TargetList.Add(JsonUtility.FromJson<Target>(JsonText.text));
-        Pieces = new List<Piece>();
-        Pieces.Add(JsonUtility.FromJson<Piece>(JsonText.text));
-    } 
 
 }

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
+    public static Level DataLevel;
 
     public Wave targetWavePrefab;
     public List<Wave> gameWavesPrefab;
@@ -20,6 +21,7 @@ public class GameController : MonoBehaviour
     private void Awake() {
         if (Instance == null)
             Instance = this;
+        LoadLevelsFile();
     }
     
 	void Update ()
@@ -74,6 +76,20 @@ public class GameController : MonoBehaviour
 
     public static event GameFlowEvent OnWin;
     public static event GameFlowEvent OnLose;
+
+    #endregion
+
+    #region Level Static Database    
+    /// <summary>
+    /// Loads the levels file, totally unsafe!
+    /// </summary>
+    void LoadLevelsFile() {
+        TextAsset JsonText = Resources.Load<TextAsset>("LevelsAndPieces/LevelsAndPieces");
+
+        GameController.DataLevel = new Level();
+        GameController.DataLevel = JsonUtility.FromJson<Level>(JsonText.text);
+
+    }
 
     #endregion
 
