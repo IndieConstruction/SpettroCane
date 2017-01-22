@@ -29,12 +29,12 @@ public class GameController : MonoBehaviour
         SoundMngr =  GetComponent<SoundManager>();
         LoadLevelsFile();
 
-        GameController.Instance.SoundMngr.PlayClip(SoundManager.Clip.Main, false);
+        //GameController.Instance.SoundMngr.PlayClip(SoundManager.Clip.Main, false);
         //GameController.Instance.SoundMngr.PlayLayeredMusic(1, 0, 0);
         //GameController.Instance.SoundMngr.PlayLayeredMusic(2, 0, 0);
         //GameController.Instance.SoundMngr.PlayLayeredMusic(3, 0, 0);
 
-        GameController.Instance.SoundMngr.PlayLayeredMusic(1, 1);
+        //GameController.Instance.SoundMngr.PlayLayeredMusic(1, 1);
         //GameController.Instance.SoundMngr.PlayLayeredMusic(2, 1);
         //GameController.Instance.SoundMngr.PlayLayeredMusic(3, 1);
 
