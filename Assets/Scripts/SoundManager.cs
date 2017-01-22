@@ -20,7 +20,9 @@ public class SoundManager : MonoBehaviour {
     public AudioSource MusicAudioSource1;
     public AudioSource MusicAudioSource2;
     public AudioSource MusicAudioSource3;
-    public AudioSource SfxAudioSource;
+    public AudioSource SfxAudioSource_Side;
+    public AudioSource SfxAudioSource_Drop;
+    public AudioSource SfxAudioSource_Break;
 
     #region API
     public void PlayClip(Clip _clip, bool _play = true) {
@@ -33,6 +35,7 @@ public class SoundManager : MonoBehaviour {
                     break;
                 MusicAudioSource1.clip = MenuLoop;
                 MusicAudioSource1.loop = true;
+                MusicAudioSource1.pitch = 1;
                 MusicAudioSource1.Play();
                 break;
             case Clip.WinJingle:
@@ -43,6 +46,18 @@ public class SoundManager : MonoBehaviour {
                     break;
                 MusicAudioSource1.clip = WinJingle;
                 MusicAudioSource1.loop = false;
+                MusicAudioSource1.pitch = 1;
+                MusicAudioSource1.Play();
+                break;
+            case Clip.LoseJingle:
+                MusicAudioSource1.Stop();
+                MusicAudioSource2.Stop();
+                MusicAudioSource3.Stop();
+                if (!_play)
+                    break;
+                MusicAudioSource1.clip = WinJingle;
+                MusicAudioSource1.loop = false;
+                MusicAudioSource1.pitch = 0.8f;
                 MusicAudioSource1.Play();
                 break;
             case Clip.Main:
@@ -53,17 +68,25 @@ public class SoundManager : MonoBehaviour {
                     break;
                 MusicAudioSource1.clip = MainL1;
                 MusicAudioSource1.loop = true;
+                MusicAudioSource1.pitch = 1;
                 MusicAudioSource1.Play();
                 MusicAudioSource2.clip = MainL2;
                 MusicAudioSource2.loop = true;
+                MusicAudioSource2.pitch = 1;
                 MusicAudioSource2.Play();
                 MusicAudioSource3.clip = MainL3;
                 MusicAudioSource3.loop = true;
+                MusicAudioSource3.pitch = 1;
                 MusicAudioSource3.Play();
                 break;
             case Clip.SideMoveFx:
+                SfxAudioSource_Side.Play();
                 break;
             case Clip.DropSfx:
+                SfxAudioSource_Drop.Play();
+                break;
+            case Clip.BreakSfx:
+                SfxAudioSource_Break.Play();
                 break;
             default:
                 break;
@@ -110,6 +133,8 @@ public class SoundManager : MonoBehaviour {
         Main = 3,
         SideMoveFx = 6,
         DropSfx = 7,
+        BreakSfx = 8,
+        LoseJingle = 9,
 
     }
 

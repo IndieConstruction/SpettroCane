@@ -34,6 +34,8 @@ public class LevelController : MonoBehaviour
     {
         levelWon = false;
         levelLost = false;
+
+        GameController.Instance.sm.PlayClip(SoundManager.Clip.Main);
     }
 
     bool levelWon = false;
@@ -42,6 +44,8 @@ public class LevelController : MonoBehaviour
     {
         levelWon = true;
         levelLost = false;
+
+        GameController.Instance.sm.PlayClip(SoundManager.Clip.WinJingle);
     }
 
     bool levelLost = false;
@@ -49,6 +53,8 @@ public class LevelController : MonoBehaviour
     void OnLose()
     {
         levelLost = true;
+
+        GameController.Instance.sm.PlayClip(SoundManager.Clip.LoseJingle);
     }
 
     public void Update()
@@ -143,13 +149,13 @@ public class LevelController : MonoBehaviour
                 switch (window)
                 {
                     case 6:
-                        windowBoxSize = 16;
-                        break;
-                    case 8:
                         windowBoxSize = 20;
                         break;
+                    case 8:
+                        windowBoxSize = 28;
+                        break;
                     case 10:
-                        windowBoxSize = 25;
+                        windowBoxSize = 35;
                         break;
                 }
 

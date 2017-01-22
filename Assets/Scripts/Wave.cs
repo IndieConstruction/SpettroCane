@@ -180,6 +180,11 @@ public class Wave : MonoBehaviour
 
         if (manualMove == false) return;
 
+        if (!autoMove)
+        {
+            GameController.Instance.sm.PlayClip(SoundManager.Clip.SideMoveFx);   
+        }
+
         // Shift the wave
         windowOffset += step;
         if (windowOffset >= allHeights.Count)
@@ -195,6 +200,11 @@ public class Wave : MonoBehaviour
     public void SumWave(Wave other) {
         // Summing from OTHER to THIS
         //Debug.Log("SUMMING OTHER " + other.windowOffset);
+
+        if (!autoMove)
+        {
+            GameController.Instance.sm.PlayClip(SoundManager.Clip.DropSfx);
+        }
         other.StartCoroutine(other.AnimateFallCO(this));
     }
 
@@ -249,6 +259,11 @@ public class Wave : MonoBehaviour
 
     IEnumerator EndSumCO() {
         yield return new WaitForSeconds(endWait);
+
+        if (!autoMove)
+        {
+            GameController.Instance.sm.PlayClip(SoundManager.Clip.BreakSfx);
+        }
 
         // Destroy this bars
         for (int i = PlayWindowStart; i < PlayWindowEnd; i++)

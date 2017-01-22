@@ -12,6 +12,8 @@ public class GameController : MonoBehaviour
     public Wave targetWavePrefab;
     public List<Wave> gameWavesPrefab;
 
+    public SoundManager sm;
+
     public int ShiftWaveAmount = 1;
 
     //[HideInInspector]
