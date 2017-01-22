@@ -50,18 +50,36 @@ public class Wave : MonoBehaviour
 
 
     #region Wave data
-    public void CreateFromWaveData(WaveData waveData) {
+    public void CreateFromWaveData(WaveData waveData, int span) {
         List<int> values = new List<int>();
+        int[] zeroSpan = new int[span];
+
+        values.AddRange(zeroSpan);
         values.AddRange(waveData.values);
+        values.AddRange(zeroSpan);
 
         CreateWave(values);
         Draw();
     }
 
-    public void CreateFromWaveDatas(WaveData[] waveDatas) {
+    public void CreateFromWaveDatas(WaveData[] waveDatas, int span) {
         List<int> values = new List<int>();
+        int[] zeroSpan = new int[span];
+
+        values.AddRange(zeroSpan);
         for (int i = 0; i < waveDatas.Length; i++)
+        {
             values.AddRange(waveDatas[i].values);
+            values.AddRange(zeroSpan);
+        }
+
+        while (values.Count < lookWindowSize)
+        {
+            values.Insert(0,0);
+            values.Add(0);
+        }
+
+        Debug.Log(values.Count);
 
         CreateWave(values);
         Draw();
@@ -106,7 +124,7 @@ public class Wave : MonoBehaviour
 
         if (allHeights.Count < lookWindowSize)
         {
-            throw new System.Exception("ALL HEIGHTS MUST BE LONGER THAN LOOK WINDOW SIZE!");
+            throw new System.Exception("AllH " + allHeights.Count +  "  look win " + lookWindowSize + "   DATA HEIGHTS MUST BE LONGER THAN LOOK WINDOW SIZE!");
         }
 
         // Instantiate

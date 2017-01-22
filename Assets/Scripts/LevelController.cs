@@ -10,6 +10,7 @@ public class LevelController : MonoBehaviour
     private int currentLevel = 0;
 
     public delegate void GameFlowEvent();
+
     public static event GameFlowEvent OnNewLevel;
 
     private void Start()
@@ -27,6 +28,7 @@ public class LevelController : MonoBehaviour
     }
 
     bool levelWon = false;
+
     void OnWin()
     {
         levelWon = true;
@@ -34,6 +36,7 @@ public class LevelController : MonoBehaviour
     }
 
     bool levelLost = false;
+
     void OnLose()
     {
         levelLost = true;
@@ -105,15 +108,23 @@ public class LevelController : MonoBehaviour
         // ******************************
         // New Level Type Generation
 
-        if (GameController.Instance.EnableNewLevelType) {
+        if (GameController.Instance.EnableNewLevelType)
+        {
             // Create Target
             // GameController.Instance.gameWave.CreateFromWaveDatas(WaveDataProxy("1"));
             WaveData targetWave = WaveDataTargetProxy(levelId.ToString());
-            if (targetWave != null) {
-                GameController.Instance.targetWave.CreateFromWaveData(targetWave);
+            if (targetWave != null)
+            {
+                int window = GetWindow(levelId.ToString());
+                GameController.Instance.gameWave.playWindowSize = window;
+                GameController.Instance.targetWave.playWindowSize = window;
 
-                WaveData[] gameWaves = WaveDataProxy(levelId.ToString());
-                GameController.Instance.gameWave.CreateFromWaveDatas(gameWaves);
+                int target_span = 6;
+                GameController.Instance.targetWave.CreateFromWaveData(targetWave, target_span);
+
+                int span = GetSpan(levelId.ToString());
+                WaveData[] gameWaves = WaveDataInputsProxy(levelId.ToString());
+                GameController.Instance.gameWave.CreateFromWaveDatas(gameWaves, span);
             }
         }
 
@@ -128,29 +139,39 @@ public class LevelController : MonoBehaviour
     /// </summary>
     /// <param name="_targetId">The target identifier.</param>
     /// <returns></returns>
-    public WaveData[] WaveDataProxy(string _targetId) {
+    public WaveData[] WaveDataInputsProxy(string _targetId)
+    {
         List<WaveData> dataList = new List<WaveData>();
 
+        // Find the target by ID
         List<Target> targets = GameController.DataLevel.Targets.FindAll(t => t.ID == _targetId && t.TargetLink != "");
-        foreach (var target in targets) {
+        foreach (var target in targets)
+        {
             WaveData data;
             data = ScriptableObject.CreateInstance<WaveData>();
-            data.values = new int[10];
 
             Piece piece = GameController.DataLevel.Pieces.Find(p => p.ID == target.TargetLink);
 
+            int MAX_VALUES = 10;
+            int data_length = 0;
+            for (int i = MAX_VALUES - 1; i >= 0; i--)
+            {
+                if (piece.GetR(i) != "")
+                {
+                    data_length = i + 1;
+                    break;
+                }
+            }
+            Debug.Log("Piece  " + piece.ID + " with size " + data_length);
+
+            data.values = new int[data_length];
             int defaultOut = 0;
-            
-            data.values[0] = int.TryParse(piece.R0, out defaultOut) == false ? defaultOut : -int.Parse(piece.R0);
-            data.values[1] = int.TryParse(piece.R1, out defaultOut) == false ? defaultOut : -int.Parse(piece.R1);
-            data.values[2] = int.TryParse(piece.R2, out defaultOut) == false ? defaultOut : -int.Parse(piece.R2);
-            data.values[3] = int.TryParse(piece.R3, out defaultOut) == false ? defaultOut : -int.Parse(piece.R3);
-            data.values[4] = int.TryParse(piece.R4, out defaultOut) == false ? defaultOut : -int.Parse(piece.R4);
-            data.values[5] = int.TryParse(piece.R5, out defaultOut) == false ? defaultOut : -int.Parse(piece.R5);
-            data.values[6] = int.TryParse(piece.R6, out defaultOut) == false ? defaultOut : -int.Parse(piece.R6);
-            data.values[7] = int.TryParse(piece.R7, out defaultOut) == false ? defaultOut : -int.Parse(piece.R7);
-            data.values[8] = int.TryParse(piece.R8, out defaultOut) == false ? defaultOut : -int.Parse(piece.R8);
-            data.values[9] = int.TryParse(piece.R9, out defaultOut) == false ? defaultOut : -int.Parse(piece.R9);
+            for (int i = 0; i < data_length; i++)
+            {
+                //Debug.Log(i);
+                //Debug.Log(piece.GetR(i));
+                data.values[i] = int.TryParse(piece.GetR(i), out defaultOut) ? defaultOut : -int.Parse(piece.GetR(i));
+            }
 
             dataList.Add(data);
         }
@@ -162,35 +183,54 @@ public class LevelController : MonoBehaviour
     /// </summary>
     /// <param name="_targetId">The target identifier.</param>
     /// <returns></returns>
-    public WaveData WaveDataTargetProxy(string _targetId) {
+    public WaveData WaveDataTargetProxy(string _targetId)
+    {
         WaveData data;
 
-        Debug.Log(GameController.DataLevel);
+        //Debug.Log(GameController.DataLevel);
         Target target = GameController.DataLevel.Targets.Find(t => t.ID == _targetId && t.TargetLink == "");
         if (target == null)
             return null;
-        data = ScriptableObject.CreateInstance<WaveData>();
-        data.values = new int[10];
-        int defaultOut = 0;
-        
-        data.values[0] = int.TryParse(target.R0, out defaultOut) == false ? defaultOut : int.Parse(target.R0);
-        data.values[1] = int.TryParse(target.R1, out defaultOut) == false ? defaultOut : int.Parse(target.R1);
-        data.values[2] = int.TryParse(target.R2, out defaultOut) == false ? defaultOut : int.Parse(target.R2);
-        data.values[3] = int.TryParse(target.R3, out defaultOut) == false ? defaultOut : int.Parse(target.R3);
-        data.values[4] = int.TryParse(target.R4, out defaultOut) == false ? defaultOut : int.Parse(target.R4);
-        data.values[5] = int.TryParse(target.R5, out defaultOut) == false ? defaultOut : int.Parse(target.R5);
-        data.values[6] = int.TryParse(target.R6, out defaultOut) == false ? defaultOut : int.Parse(target.R6);
-        data.values[7] = int.TryParse(target.R7, out defaultOut) == false ? defaultOut : int.Parse(target.R7);
-        data.values[8] = int.TryParse(target.R8, out defaultOut) == false ? defaultOut : int.Parse(target.R8);
-        data.values[9] = int.TryParse(target.R9, out defaultOut) == false ? defaultOut : int.Parse(target.R9);
 
+        data = ScriptableObject.CreateInstance<WaveData>();
+
+        int MAX_VALUES = 10;
+        int data_length = 0;
+        for (int i = MAX_VALUES - 1; i >= 0; i--)
+        {
+            if (target.GetR(i) != "") {
+                data_length = i + 1;
+                break;
+            }
+        }
+        Debug.Log("Target " + target.ID + " has size " + data_length);
+
+        data.values = new int[data_length];
+        int defaultOut = 0;
+        for (int i = 0; i < data_length; i++)
+        {
+            data.values[i] = int.TryParse(target.GetR(i), out defaultOut) ? defaultOut : -int.Parse(target.GetR(i));
+           // Debug.Log("Target " +  i + ": "  + data.values[i]);
+        }
 
         return data;
     }
 
+    public int GetWindow(string _targetId)
+    {
+        Target target = GameController.DataLevel.Targets.Find(t => t.ID == _targetId && t.TargetLink == "");
+        if (target == null)
+            return 0;
+        return int.Parse(target.Window);
+    }
+
+    public int GetSpan(string _targetId)
+    {
+        Target target = GameController.DataLevel.Targets.Find(t => t.ID == _targetId && t.TargetLink == "");
+        if (target == null)
+            return 0;
+        return int.Parse(target.Span);
+    }
 
     #endregion
-
-
-
 }
