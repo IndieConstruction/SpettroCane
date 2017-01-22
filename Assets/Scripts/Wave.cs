@@ -78,17 +78,25 @@ public class Wave : MonoBehaviour
     }
     #endregion
 
-    public void Awake() {
-
-        // Init
+    void OnNewLevel()
+    {
         windowOffset = 0;
+        StopExulting();
+        StopAllCoroutines();
+        if (autoMove)
+            StartCoroutine(MoveWaveCO());
+    }
+
+    public void Awake()
+    {
+        LevelController.OnNewLevel += this.OnNewLevel;
 
         if (testCosine) {
             CreateWithTestData();
         }
 
-        if (autoMove)
-            StartCoroutine(MoveWaveCO());
+        if (IsTargetWave)
+            GameController.OnWin += OnWin;
     }
 
     void CreateWave(List<int> _heights)
@@ -221,6 +229,8 @@ public class Wave : MonoBehaviour
 
             //bar.GetComponentInChildren<MeshRenderer>().material.DOColor(Color.white, 0.2f).SetLoops(2, LoopType.Yoyo);
 
+           // Debug.Log("DESTROYING BAR");
+
             var data_i = i + windowOffset;
             if (data_i >= allHeights.Count) data_i -= allHeights.Count;
             SoftDestroyBar(bar, i, data_i, lastone: i == PlayWindowEnd-1);
@@ -228,16 +238,17 @@ public class Wave : MonoBehaviour
 
         // Make sure the other gets updated now
         toWave.UpdateSum(this);
-
-        //StartCoroutine(toWave.WinCO());
     }
 
     void SoftDestroyBar(Bar _barToDestroy, int windowIndex, int dataIndex, bool lastone = false)
     {
         float effectDuration = 0.2f;
 
-        foreach (var cube in _barToDestroy.cubes)
+        for (int i = 0; i < _barToDestroy.cubes.Count; i++)
         {
+            var cube = _barToDestroy.cubes[i];
+            bool lastCube = i == _barToDestroy.cubes.Count-1;
+
             cube.transform.DOScaleY(0, effectDuration).OnComplete(() =>
             {
                 var tmp = _barToDestroy.transform.localPosition;
@@ -249,20 +260,15 @@ public class Wave : MonoBehaviour
                 //Debug.Log("SET TO ZERO " + windowIndex);
                 windowHeights[windowIndex] = 0;
                 allHeights[dataIndex] = 0;
-                //  var col = cube.GetComponent<MeshRenderer>().material.color;
-                //  col.a = 1;
-                //  cube.GetComponent<MeshRenderer>().material.color = col;
 
-                if (lastone)
+                //Debug.Log("LASTONE: " + lastone);
+                if (lastone && lastCube)
                 {
                     // Re-enable movement
                     EnableMovement();
 
-                    if (!IsTargetWave)
-                    {
-                        if (!GameController.Instance.CheckWin(toWave.allHeights))
+                    if (!GameController.Instance.CheckWin(toWave.allHeights))
                             GameController.Instance.CheckLose(allHeights);
-                    }
                 }
             });
         }
@@ -353,14 +359,22 @@ public class Wave : MonoBehaviour
         transform.localPosition = tmpLocPos;
     }
 
+    void OnWin()
+    {
+        StartCoroutine(WinCO());
+    }
+
+    bool isExulting = false;
     IEnumerator WinCO()
     {
+        isExulting = true;
         autoPeriod = 0.1f;
         autoMove = true;
 
         for (int i = 0; i < bars.Count; i++)
         {
-            bars[i].Initialise(10);
+         //   bars[i].Initialise(10);
+            bars[i].gameObject.SetActive(true);
         }
 
         while (true)
@@ -370,9 +384,20 @@ public class Wave : MonoBehaviour
                 Color color1 = Color.HSVToRGB(Mathf.Repeat(Time.time*2f + i * 0.1f, 1f), 1, 1);
                 Color color2 = Color.HSVToRGB(Mathf.Repeat(Time.time * 5f + i *0.1f, 1f), 1, 1);
                 bars[i].SetColor(color1, color2);
-                bars[i].SetHeight((int)Mathf.Round(10*(Mathf.PerlinNoise(Time.time * 4f + i*2f, 0))));
+                var noise = (int) Mathf.Round(5 * (Mathf.PerlinNoise(Time.time * 4f + i * 2f, 0)));
+                bars[i].SetHeight(noise);
             }
             yield return null;
+        }
+    }
+
+    void StopExulting()
+    {
+        if (isExulting)
+        {
+            isExulting = false;
+            autoPeriod = 0;
+            autoMove = false;
         }
     }
 }
