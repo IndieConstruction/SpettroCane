@@ -128,7 +128,7 @@ public class LevelController : MonoBehaviour
         {
             // RANDOM GENERATION
 
-            int nData = UnityEngine.Random.Range(2, 2);
+            int nData = UnityEngine.Random.Range(2, 6);
 
             int targetSize = 8;
             var targetWaveData = WaveData.CreateInstance<WaveData>();
@@ -141,7 +141,10 @@ public class LevelController : MonoBehaviour
                 for (int j = 0; j < usedInput.values.Length; j++)
                 {
                     int rndOffset = UnityEngine.Random.Range(0,targetSize);
+                    const int MAX_HEIGHT = 6;
                     targetWaveData.values[(int) Mathf.Repeat(rndOffset + j, targetSize)] += -usedInput.values[j];
+                    targetWaveData.values[(int) Mathf.Repeat(rndOffset + j, targetSize)] =
+                        Mathf.Clamp(targetWaveData.values[(int) Mathf.Repeat(rndOffset + j, targetSize)], -MAX_HEIGHT, MAX_HEIGHT);
                 }
                 Debug.Log("USING INPUT OF LENGTH " + usedInput.values.Length);
                 s = "";
@@ -165,6 +168,22 @@ public class LevelController : MonoBehaviour
             GameController.Instance.targetWave.playWindowSize = targetSize;
             GameController.Instance.targetWave.CreateFromWaveData(targetWaveData, 0);
             GameController.Instance.gameWave.CreateFromWaveDatas(usedDatas, 2);
+
+
+            float windowBoxSize = 1;
+            switch (targetSize)
+            {
+                case 6:
+                    windowBoxSize = 20;
+                    break;
+                case 8:
+                    windowBoxSize = 28;
+                    break;
+                case 10:
+                    windowBoxSize = 35;
+                    break;
+            }
+
         }
         else
         {
