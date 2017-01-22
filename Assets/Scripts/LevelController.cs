@@ -9,10 +9,21 @@ public class LevelController : MonoBehaviour
     public List<Piece> Pieces;
     private int currentLevel = 0;
 
+    public delegate void GameFlowEvent();
+    public static event GameFlowEvent OnNewLevel;
+
     private void Start()
     {
         GameController.OnWin += OnWin;
-        SetLevel(0);
+        GameController.OnLose += OnLose;
+        LevelController.OnNewLevel += HOnNewLevel;
+        SetLevel(1);
+    }
+
+    void HOnNewLevel()
+    {
+        levelWon = false;
+        levelLost = false;
     }
 
     bool levelWon = false;
@@ -39,14 +50,14 @@ public class LevelController : MonoBehaviour
 
         if (levelWon)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Return))
             {
                 AdvanceLevel();
             }
         }
         if (levelLost)
         {
-            if (Input.GetKeyDown(KeyCode.Space))
+            if (Input.GetKeyDown(KeyCode.Return))
             {
                 RetryLevel();
             }
@@ -70,6 +81,11 @@ public class LevelController : MonoBehaviour
         this.currentLevel = levelId;
         //GameController.Instance.gameWave.CreateFromWaveDatas(levelPacks[levelId].inputs);
         //GameController.Instance.targetWave.CreateFromWaveData(levelPacks[levelId].target);
+
+        if (OnNewLevel != null)
+        {
+            OnNewLevel();
+        }
 
         // test: auto level generator
         /*var targetWaveData = WaveData.CreateInstance<WaveData>();
