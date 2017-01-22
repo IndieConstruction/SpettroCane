@@ -7,7 +7,7 @@ public class WaveDataCreator : MonoBehaviour
     [MenuItem("Create/Create Word Data")]
     public static void CreateWordData()
     {
-        ScriptableObjectUtility.CreateAsset<WaveData>();
+        //ScriptableObjectUtility.CreateAsset<WaveData>();
     }
 
     [MenuItem("Create/Create Word Pack Data")]

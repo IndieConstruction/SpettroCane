@@ -4,7 +4,10 @@ using UnityEngine;
 
 public class GameController : MonoBehaviour
 {
-    public static Level DataLevel;
+    #region New Level Types
+    public static LevelsStaticData DataLevel;
+    public bool EnableNewLevelType = true;
+    #endregion
 
     public Wave targetWavePrefab;
     public List<Wave> gameWavesPrefab;
@@ -86,8 +89,8 @@ public class GameController : MonoBehaviour
     void LoadLevelsFile() {
         TextAsset JsonText = Resources.Load<TextAsset>("LevelsAndPieces/LevelsAndPieces");
 
-        GameController.DataLevel = new Level();
-        GameController.DataLevel = JsonUtility.FromJson<Level>(JsonText.text);
+        GameController.DataLevel = new LevelsStaticData();
+        GameController.DataLevel = JsonUtility.FromJson<LevelsStaticData>(JsonText.text);
 
     }
 
