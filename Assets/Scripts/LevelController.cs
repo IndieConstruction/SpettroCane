@@ -13,6 +13,11 @@ public class LevelController : MonoBehaviour
 
     public static event GameFlowEvent OnNewLevel;
 
+    public static void ResetStatic()
+    {
+        OnNewLevel = null;
+    }
+
     private void Start()
     {
         GameController.OnWin += OnWin;

@@ -7,6 +7,7 @@ public class Reset : MonoBehaviour {
 		if (Input.GetKeyDown(KeyCode.R))
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            LevelController.ResetStatic();
         }
 	}
 }
