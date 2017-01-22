@@ -98,16 +98,13 @@ public class LevelController : MonoBehaviour
     }
 
 
+    public WaveData[] dataForRandom;
+
     void SetLevel(int levelId)
     {
         this.currentLevel = levelId;
         //GameController.Instance.gameWave.CreateFromWaveDatas(levelPacks[levelId].inputs);
         //GameController.Instance.targetWave.CreateFromWaveData(levelPacks[levelId].target);
-
-        if (OnNewLevel != null)
-        {
-            OnNewLevel();
-        }
 
         // test: auto level generator
         /*var targetWaveData = WaveData.CreateInstance<WaveData>();
@@ -127,45 +124,96 @@ public class LevelController : MonoBehaviour
         // ******************************
         // New Level Type Generation
 
-        if (GameController.Instance.EnableNewLevelType)
+        if (levelId >= 8)
         {
-            // Create Target
-            // GameController.Instance.gameWave.CreateFromWaveDatas(WaveDataProxy("1"));
-            WaveData targetWave = WaveDataTargetProxy(levelId.ToString());
-            if (targetWave != null)
+            // RANDOM GENERATION
+
+            int nData = UnityEngine.Random.Range(2, 2);
+
+            int targetSize = 8;
+            var targetWaveData = WaveData.CreateInstance<WaveData>();
+            WaveData[] usedDatas = new WaveData[nData];
+            targetWaveData.values = new int[targetSize];
+            string s;
+            for (int i = 0; i < nData; i++)
             {
-                int window = GetWindow(levelId.ToString());
-                GameController.Instance.gameWave.playWindowSize = window;
-                GameController.Instance.targetWave.playWindowSize = window;
-
-                int target_span = 0;    // automatic addition anyway
-                GameController.Instance.targetWave.CreateFromWaveData(targetWave, target_span);
-
-                int span = GetSpan(levelId.ToString());
-                WaveData[] gameWaves = WaveDataInputsProxy(levelId.ToString());
-                GameController.Instance.gameWave.CreateFromWaveDatas(gameWaves, span);
-
-                float windowBoxSize = 1;
-                switch (window)
+                var usedInput = dataForRandom[UnityEngine.Random.Range(0, dataForRandom.Length)];
+                for (int j = 0; j < usedInput.values.Length; j++)
                 {
-                    case 6:
-                        windowBoxSize = 20;
-                        break;
-                    case 8:
-                        windowBoxSize = 28;
-                        break;
-                    case 10:
-                        windowBoxSize = 35;
-                        break;
+                    int rndOffset = UnityEngine.Random.Range(0,targetSize);
+                    targetWaveData.values[(int) Mathf.Repeat(rndOffset + j, targetSize)] += -usedInput.values[j];
                 }
+                Debug.Log("USING INPUT OF LENGTH " + usedInput.values.Length);
+                s = "";
 
-                var tmpScale = showWindowBackgroundTr.transform.localScale;
-                tmpScale.x = windowBoxSize;
-                showWindowBackgroundTr.transform.localScale = tmpScale;
+                usedDatas[i] = usedInput;
+                for (int j = 0; j < usedDatas[i].values.Length; j++)
+                {
+                    s += usedDatas[i].values[j] + " ";
+                }
+                Debug.Log(s);
             }
+
+            s = "TARGET: ";
+            for (int j = 0; j < targetWaveData.values.Length; j++)
+            {
+                s += targetWaveData.values[j] + " ";
+            }
+            Debug.Log(s);
+
+            GameController.Instance.gameWave.playWindowSize = targetSize;
+            GameController.Instance.targetWave.playWindowSize = targetSize;
+            GameController.Instance.targetWave.CreateFromWaveData(targetWaveData, 0);
+            GameController.Instance.gameWave.CreateFromWaveDatas(usedDatas, 2);
+        }
+        else
+        {
+            if (GameController.Instance.EnableNewLevelType)
+            {
+                // Create Target
+                // GameController.Instance.gameWave.CreateFromWaveDatas(WaveDataProxy("1"));
+                WaveData targetWave = WaveDataTargetProxy(levelId.ToString());
+                if (targetWave != null)
+                {
+                    int window = GetWindow(levelId.ToString());
+                    GameController.Instance.gameWave.playWindowSize = window;
+                    GameController.Instance.targetWave.playWindowSize = window;
+
+                    int target_span = 0;    // automatic addition anyway
+                    GameController.Instance.targetWave.CreateFromWaveData(targetWave, target_span);
+
+                    int span = GetSpan(levelId.ToString());
+                    WaveData[] gameWaves = WaveDataInputsProxy(levelId.ToString());
+                    GameController.Instance.gameWave.CreateFromWaveDatas(gameWaves, span);
+
+                    float windowBoxSize = 1;
+                    switch (window)
+                    {
+                        case 6:
+                            windowBoxSize = 20;
+                            break;
+                        case 8:
+                            windowBoxSize = 28;
+                            break;
+                        case 10:
+                            windowBoxSize = 35;
+                            break;
+                    }
+
+                    var tmpScale = showWindowBackgroundTr.transform.localScale;
+                    tmpScale.x = windowBoxSize;
+                    showWindowBackgroundTr.transform.localScale = tmpScale;
+                }
+            }
+
         }
 
         // ******************************
+
+        if (OnNewLevel != null)
+        {
+            OnNewLevel();
+        }
 
     }
 
