@@ -118,7 +118,10 @@ public class Wave : MonoBehaviour
         }
 
         if (IsTargetWave)
+        {
             GameController.OnWin += OnWin;
+            GameController.OnLose += OnLose;
+        }
     }
 
     void CreateWave(List<int> _heights)
@@ -389,6 +392,11 @@ public class Wave : MonoBehaviour
         StartCoroutine(WinCO());
     }
 
+    void OnLose()
+    {
+        StartCoroutine(LoseCO());
+    }
+
     bool isExulting = false;
     IEnumerator WinCO()
     {
@@ -415,6 +423,33 @@ public class Wave : MonoBehaviour
             yield return null;
         }
     }
+
+    IEnumerator LoseCO()
+    {
+        isExulting = true;
+        //autoPeriod = 0.1f;
+        //autoMove = true;
+
+        for (int i = 0; i < bars.Count; i++)
+        {
+            bars[i].gameObject.SetActive(true);
+        }
+
+        while (true)
+        {
+            for (int i = 0; i < bars.Count; i++)
+            {
+                Color color1 = Color.red;
+                Color color2 = Color.black;
+                Color targetColor = Color.Lerp(color1, color2, Mathf.Sin(Time.time * 5f));
+                bars[i].SetColor(targetColor, targetColor*0.5f);
+                //var noise = (int)Mathf.Round(5 * (Mathf.PerlinNoise(Time.time * 4f + i * 2f, 0)));
+                //bars[i].SetHeight(noise);
+            }
+            yield return null;
+        }
+    }
+
 
     void StopExulting()
     {
