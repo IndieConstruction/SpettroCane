@@ -132,14 +132,17 @@ public class Wave : MonoBehaviour
         }
 
         // Instantiate
-        for (int i = 0; i < lookWindowSize; i++)
+        if (bars.Count == 0)
         {
-            GameObject go = Instantiate(barPrefab);
-            go.transform.SetParent(transform);
-            go.transform.localPosition = Vector3.right * i * barPlayWidth;
-            Bar newBar = go.GetComponent<Bar>();
-            newBar.Initialise(maxHeight);
-            bars.Add(newBar);
+            for (int i = 0; i < lookWindowSize; i++)
+            {
+                GameObject go = Instantiate(barPrefab);
+                go.transform.SetParent(transform);
+                go.transform.localPosition = Vector3.right * i * barPlayWidth;
+                Bar newBar = go.GetComponent<Bar>();
+                newBar.Initialise(maxHeight);
+                bars.Add(newBar);
+            }
         }
     }
 
