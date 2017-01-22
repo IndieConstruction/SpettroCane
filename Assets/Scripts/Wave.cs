@@ -37,7 +37,7 @@ public class Wave : MonoBehaviour
     private float barPlayWidth = 2f;
     //private float barActualWidth = 1.8f;
 
-    public int maxHeight = 4;
+    private int maxHeight = 6;
 
     //private System.Func<float,int> WaveDelegate;
 
@@ -57,6 +57,12 @@ public class Wave : MonoBehaviour
         values.AddRange(zeroSpan);
         values.AddRange(waveData.values);
         values.AddRange(zeroSpan);
+
+        while (values.Count < lookWindowSize)
+        {
+            values.Insert(0, 0);
+            values.Add(0);
+        }
 
         CreateWave(values);
         Draw();
@@ -78,8 +84,6 @@ public class Wave : MonoBehaviour
             values.Insert(0,0);
             values.Add(0);
         }
-
-        Debug.Log(values.Count);
 
         CreateWave(values);
         Draw();
