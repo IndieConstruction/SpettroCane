@@ -133,7 +133,7 @@ public class LevelController : MonoBehaviour
         {
             // RANDOM GENERATION
 
-            int nData = UnityEngine.Random.Range(2, 2);
+            int nData = UnityEngine.Random.Range(2, 6);
 
             int targetSize = 8;
             var targetWaveData = WaveData.CreateInstance<WaveData>();
